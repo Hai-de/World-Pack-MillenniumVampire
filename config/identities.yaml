@@ -1,0 +1,7 @@
+- id: "identity_vampire_original_self"
+  subject_entity_id: "actor_vampire"
+  type: "original_self"
+  claims:
+    mortal_name: null
+    born_era: null
+    turned_era: null

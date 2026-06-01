@@ -1,0 +1,58 @@
+# ─── perceive: 同步查询 ───
+
+- key: perceive.current_prompt
+  category: perceive
+  description: "获取提示池当前位置的提示内容"
+  default_visibility: actor_local
+
+- key: perceive.character_state
+  category: perceive
+  description: "读取吸血鬼五种资源、身份等状态"
+  default_visibility: actor_local
+
+- key: perceive.diary_entries
+  category: perceive
+  description: "读取日记条目列表"
+  default_visibility: actor_local
+
+- key: perceive.chronicle
+  category: perceive
+  description: "读取已消费提示历史（编年史）"
+  default_visibility: actor_local
+
+- key: perceive.full_state_snapshot
+  category: perceive
+  description: "获取游戏完整状态快照（用于重连同步）"
+  default_visibility: actor_local
+
+- key: perceive.recorded_memory
+  category: perceive
+  description: "读取日记中已记录的记忆"
+  default_visibility: actor_local
+
+# ─── invoke: 异步调用 ───
+
+- key: invoke.roll_dice
+  category: invoke
+  description: "投掷骰子（1d10 - 1d6）并滑动提示池"
+  default_visibility: actor_local
+
+- key: invoke.respond_to_prompt
+  category: invoke
+  description: "回应当前提示，创建经历"
+  default_visibility: actor_local
+
+- key: invoke.character_creation
+  category: invoke
+  description: "车卡流程，初始化吸血鬼状态"
+  default_visibility: actor_local
+
+- key: invoke.write_diary_entry
+  category: invoke
+  description: "根据当前经历写下一则日记条目，将主观经历固化为可回读的记录"
+  default_visibility: actor_local
+
+- key: invoke.pass_time
+  category: invoke
+  description: "推进一段不确定长度的时间，触发记忆自然衰退与时代变化"
+  default_visibility: operator

@@ -1,0 +1,19 @@
+initial_states:
+  - entity_id: "actor_vampire"
+    state_namespace: "runtime"
+    state_json:
+      current_alias: null
+      active_memories: []
+      faded_memories: []
+
+  - entity_id: "artifact_diary"
+    state_namespace: "runtime"
+    state_json:
+      holder: "actor_vampire"
+      entry_count: 0
+      last_entry_tick: null
+
+initial_events:
+  - event_type: "origin_story_requested"
+    payload:
+      prompt: "叙述主角如何变成吸血鬼。"

@@ -1,0 +1,66 @@
+/*
+ * 千年吸血鬼 — 哥特式日记美学设计系统
+ * §19.1 色彩系统定义
+ */
+
+:root {
+  /* ─── 主色调：暗色背景系列 ─── */
+  --vampire-bg-deep: #0a0a0f;
+  --vampire-bg-base: #1a1515;
+  --vampire-bg-elevated: #2a2020;
+  --vampire-bg-overlay: rgba(10, 10, 15, 0.85);
+
+  /* ─── 强调色：血与金 ─── */
+  --vampire-blood: #8b0000;
+  --vampire-blood-dim: rgba(139, 0, 0, 0.3);
+  --vampire-blood-glow: rgba(139, 0, 0, 0.15);
+  --vampire-gold: #d4af37;
+  --vampire-gold-dim: rgba(212, 175, 55, 0.3);
+  --vampire-ink: #2d1b69;
+  --vampire-ink-dim: rgba(45, 27, 105, 0.3);
+  --vampire-parchment: #f5e6c8;
+  --vampire-parchment-dim: rgba(245, 230, 200, 0.1);
+
+  /* ─── 文字色 ─── */
+  --vampire-text-primary: #e8d5b7;
+  --vampire-text-secondary: #a09080;
+  --vampire-text-muted: #6b5b4b;
+  --vampire-text-inverse: #0a0a0f;
+
+  /* ─── 边框 ─── */
+  --vampire-border-strong: rgba(139, 0, 0, 0.5);
+  --vampire-border-muted: rgba(139, 0, 0, 0.2);
+  --vampire-border-subtle: rgba(160, 144, 128, 0.15);
+
+  /* ─── 状态色 ─── */
+  --vampire-state-success: #2d6b2d;
+  --vampire-state-warning: #b8860b;
+  --vampire-state-danger: #8b0000;
+  --vampire-state-info: #2d1b69;
+
+  /* ─── 阴影 ─── */
+  --vampire-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 1px rgba(139, 0, 0, 0.2);
+  --vampire-shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 1px rgba(139, 0, 0, 0.3);
+  --vampire-shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+
+  /* ─── 圆角 ─── */
+  --vampire-radius-sm: 4px;
+  --vampire-radius-md: 8px;
+  --vampire-radius-lg: 12px;
+
+  /* ─── 过渡 ─── */
+  --vampire-transition-fast: 150ms ease;
+  --vampire-transition-normal: 300ms ease;
+  --vampire-transition-slow: 500ms ease;
+
+  /* ─── 字体族 ─── */
+  --vampire-font-heading: 'Playfair Display', 'Noto Serif SC', Georgia, serif;
+  --vampire-font-body: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+  --vampire-font-handwritten: 'Caveat', 'Ma Shan Zheng', cursive;
+
+  /* ─── 布局尺寸 ─── */
+  --vampire-sidebar-width: 280px;
+  --vampire-sidebar-collapsed: 48px;
+  --vampire-topbar-height: 48px;
+  --vampire-bottombar-height: 56px;
+}

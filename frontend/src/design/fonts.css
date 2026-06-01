@@ -1,0 +1,5 @@
+/*
+ * Font families are declared via CSS custom properties (tokens.css).
+ * Font loading is handled in main.ts via non-blocking <link> elements
+ * to avoid CSS @import blocking the entire stylesheet.
+ */

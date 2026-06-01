@@ -1,0 +1,7 @@
+initial_tick: 0
+min_tick: 0
+step:
+  strategy: "variable"
+  range:
+    min: 1
+    max: 120

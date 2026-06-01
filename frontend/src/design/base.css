@@ -1,0 +1,143 @@
+/*
+ * 全局基础样式
+ * 哥特式日记美学
+ */
+
+/* ─── 全局重置 ─── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--vampire-font-body);
+  line-height: 1.6;
+  color: var(--vampire-text-primary);
+  background-color: var(--vampire-bg-base);
+  min-height: 100vh;
+}
+
+/* ─── 链接 ─── */
+a {
+  color: var(--vampire-gold);
+  text-decoration: none;
+  transition: color var(--vampire-transition-fast);
+}
+
+a:hover {
+  color: var(--vampire-parchment);
+}
+
+/* ─── 滚动条 ─── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--vampire-bg-deep);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vampire-border-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vampire-blood-dim);
+}
+
+/* ─── 选择文本 ─── */
+::selection {
+  background-color: var(--vampire-blood-dim);
+  color: var(--vampire-parchment);
+}
+
+/* ─── 焦点环 — 可访问性 ─── */
+:focus-visible {
+  outline: 2px solid var(--vampire-gold);
+  outline-offset: 2px;
+}
+
+/* ─── 减少动画支持 ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── 工具类 ─── */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ─── 羊皮纸纹理背景（用于提示卡片等） ─── */
+.vampire-parchment-bg {
+  background-color: var(--vampire-bg-elevated);
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(245, 230, 200, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(139, 0, 0, 0.02) 0%, transparent 50%);
+}
+
+/* ─── 手写风格文字 ─── */
+.vampire-handwritten {
+  font-family: var(--vampire-font-handwritten);
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+
+/* ─── 标题风格 ─── */
+.vampire-heading {
+  font-family: var(--vampire-font-heading);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ─── 血色边框卡片 ─── */
+.vampire-card {
+  background-color: var(--vampire-bg-elevated);
+  border: 1px solid var(--vampire-border-muted);
+  border-radius: var(--vampire-radius-md);
+  box-shadow: var(--vampire-shadow-card);
+  padding: 1rem;
+}
+
+/* ─── 血色高亮文本 ─── */
+.vampire-highlight {
+  color: var(--vampire-blood);
+  font-weight: 500;
+}
+
+/* ─── 褪色效果（用于旧记忆） ─── */
+.vampire-faded {
+  opacity: 0.5;
+  filter: blur(0.5px);
+  transition: opacity var(--vampire-transition-slow), filter var(--vampire-transition-slow);
+}
+
+.vampire-faded:hover {
+  opacity: 0.8;
+  filter: none;
+}

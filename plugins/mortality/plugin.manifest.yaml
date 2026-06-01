@@ -1,0 +1,30 @@
+manifest_version: "plugin/v1"
+id: "mortality"
+name: "凡俗生物死亡判定"
+version: "1.0.0"
+kind: "game_loop"
+entrypoints:
+  server:
+    source: "src/mortality_contributor.ts"
+    runtime: "node_esm"
+compatibility:
+  yidhras: ">=0.1.0"
+  host_api: ">=2.0.0"
+  pack_id: "vampire_millennium"
+requested_capabilities:
+  - "server.step_contributor.register"
+  - "server.pack_storage.access"
+  - "server.event.emit"
+contributions:
+  server:
+    step_contributors:
+      - name: "pack:mortality"
+        priority: 10
+        invoke: "mortality:check_mortality"
+        type: "step_contributor"
+config:
+  max_probability: 0.8
+  midpoint: 60
+  steepness: 0.08
+load:
+  priority: 50

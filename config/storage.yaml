@@ -1,0 +1,70 @@
+strategy: isolated_pack_db
+runtime_db_file: runtime.sqlite
+pack_collections:
+  - key: vampire_memories
+    kind: table
+    primary_key: id
+    fields:
+      - { key: id, type: string, required: true }
+      - { key: vampire_id, type: string, required: true }
+      - { key: name, type: string }
+      - { key: experience_count, type: number }
+      - { key: archived_to_diary, type: boolean }
+      - { key: created_at, type: string }
+
+  - key: vampire_experiences
+    kind: table
+    primary_key: id
+    fields:
+      - { key: id, type: string, required: true }
+      - { key: memory_id, type: string, required: true }
+      - { key: vampire_id, type: string, required: true }
+      - { key: content, type: string }
+      - { key: created_at, type: string }
+
+  - key: prompt_pool
+    kind: table
+    primary_key: position
+    fields:
+      - { key: position, type: number, required: true }
+      - { key: content, type: string, required: true }
+      - { key: consumed, type: boolean }
+
+  - key: vampire_characters
+    kind: table
+    primary_key: id
+    fields:
+      - { key: id, type: string, required: true }
+      - { key: name, type: string, required: true }
+      - { key: description, type: string }
+      - { key: kind, type: string }
+      - { key: alive, type: boolean }
+
+  - key: vampire_aliases
+    kind: table
+    primary_key: id
+    fields:
+      - { key: id, type: string, required: true }
+      - { key: name, type: string, required: true }
+      - { key: era, type: string }
+      - { key: description, type: string }
+
+  - key: era_markers
+    kind: table
+    primary_key: id
+    fields:
+      - { key: id, type: string, required: true }
+      - { key: label, type: string, required: true }
+      - { key: tick_start, type: number }
+      - { key: tick_end, type: number }
+      - { key: description, type: string }
+
+  - key: vampire_state
+    kind: table
+    primary_key: id
+    fields:
+      - { key: id, type: string, required: true }
+      - { key: state_json, type: json, required: true }
+      - { key: updated_at, type: string }
+install:
+  allow_pack_collections: true

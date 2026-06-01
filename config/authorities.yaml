@@ -1,0 +1,11 @@
+- id: "authority_diary_records_memory"
+  source_entity_id: "institution_vampiric_curse"
+  target_selector:
+    kind: "holder_of"
+    entity_id: "artifact_diary"
+  capability_key: "invoke.write_diary_entry"
+  grant_type: "mediated"
+  mediated_by_entity_id: "mediator_diary_memory"
+  priority: 50
+  status: "active"
+  revocable: true

@@ -1,0 +1,50 @@
+# 运行时数据库
+runtime.sqlite
+runtime.sqlite.storage-plan.json
+*.sqlite
+*.sqlite3
+*.db
+
+# 前端构建产物
+frontend/dist/
+frontend/.vite/
+frontend/.nuxt/
+frontend/.output/
+
+# 前端依赖
+frontend/node_modules/
+
+# 包管理器
+frontend/package-lock.json
+frontend/pnpm-lock.yaml
+frontend/yarn.lock
+
+# 插件运行时
+plugins/*/node_modules/
+plugins/*/dist/
+
+# 运行时数据
+runtime/
+*.runtime.json
+*.snapshot.json
+
+# 系统文件
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 日志
+*.log
+logs/
+
+# 临时文件
+*.tmp
+*.temp
+*.bak

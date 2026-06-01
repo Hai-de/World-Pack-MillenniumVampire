@@ -1,0 +1,5 @@
+prompt_pool_capacity: 100
+prompt_replenish_threshold: 45
+max_memories: 5
+max_experiences_per_memory: 3
+max_diary_memories: 4

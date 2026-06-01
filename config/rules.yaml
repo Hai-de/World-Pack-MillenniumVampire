@@ -1,0 +1,57 @@
+perception: []
+
+capability_resolution: []
+
+invocation: []
+
+objective_enforcement:
+  - id: rule_skill_substitution
+    when:
+      capability: invoke.respond_to_prompt
+      semantic_intent.kind: prompt_requires_skill_test
+    then:
+      mutate:
+        subject_state:
+          skills: '{{ plugin.vampire:rule_contributor.skills_after }}'
+        target_state:
+          resources: '{{ plugin.vampire:rule_contributor.resources_after }}'
+      emit_events:
+        - type: substitution
+          title: "技艺替代"
+          description: '{{ plugin.vampire:rule_contributor.reasoning }}'
+          impact_data:
+            semantic_type: skill_substitution
+
+  - id: rule_resource_substitution
+    when:
+      capability: invoke.respond_to_prompt
+      semantic_intent.kind: prompt_requires_resource_loss
+    then:
+      mutate:
+        subject_state:
+          skills: '{{ plugin.vampire:rule_contributor.skills_after }}'
+        target_state:
+          resources: '{{ plugin.vampire:rule_contributor.resources_after }}'
+      emit_events:
+        - type: substitution
+          title: "资源替代"
+          description: '{{ plugin.vampire:rule_contributor.reasoning }}'
+          impact_data:
+            semantic_type: resource_substitution
+
+  - id: rule_demise
+    when:
+      capability: invoke.respond_to_prompt
+      semantic_intent.kind: both_depleted
+    then:
+      mutate:
+        world_state:
+          game_phase: ended
+      emit_events:
+        - type: demise
+          title: "技艺与资源双双枯竭"
+          description: '{{ plugin.vampire:rule_contributor.reasoning }}'
+          impact_data:
+            semantic_type: demise
+
+projection: []

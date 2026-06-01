@@ -1,0 +1,37 @@
+schema_version: 0
+metadata:
+  id: vampire_millennium
+  name: 千年吸血鬼
+  version: 0.1.0
+  description: 单人日记式吸血鬼角色扮演。一名吸血鬼在千年历史中用第一人称记录自己的经历。
+  authors:
+    - name: Yidhras Team
+      role: pack maintainer
+  license: SEE LICENSE IN ROOT PROJECT
+  tags:
+    - solo
+    - journaling
+    - vampire
+    - narrative
+  compatibility:
+    yidhras: ">=0.5.0"
+    schema_version: world-pack/v1
+  status: incomplete
+  frontend:
+    type: custom
+    entry: index.js
+
+include:
+  variables: "config/variables.yaml"
+  prompts: "config/prompts.yaml"
+  time_systems: "config/time_systems.yaml"
+  simulation_time: "config/simulation_time.yaml"
+  entities: "config/entities.yaml"
+  identities: "config/identities.yaml"
+  capabilities: "config/capabilities.yaml"
+  authorities: "config/authorities.yaml"
+  rules: "config/rules.yaml"
+  bootstrap: "config/bootstrap.yaml"
+  storage: "config/storage.yaml"
+  ai: "config/ai.yaml"
+  behavior_trees: "config/behavior_trees.yaml"

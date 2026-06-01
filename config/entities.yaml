@@ -1,0 +1,43 @@
+actors:
+  - id: "actor_vampire"
+    label: "吸血鬼"
+    kind: actor
+    entity_type: "vampire"
+    tags: ["solo", "protagonist", "undead"]
+    state:
+      mortal_name: null
+      born_era: null
+      turned_era: null
+      current_alias: null
+      skills: []
+      resources: []
+      marks: []
+      active_memory_ids: []
+      diary_id: null
+
+artifacts:
+  - id: "artifact_diary"
+    label: "吸血鬼日记"
+    kind: artifact
+    entity_type: "diary"
+    tags: ["memory", "record", "mediator"]
+    state:
+      holder: "actor_vampire"
+      memory_ids: []
+      max_capacity: 4
+      lost: false
+
+mediators:
+  - id: "mediator_diary_memory"
+    entity_ref: "artifact_diary"
+    mediator_kind: "artifact_vessel"
+    grants:
+      - capability_key: "invoke.write_diary_entry"
+      - capability_key: "perceive.recorded_memory"
+
+institutions:
+  - id: "institution_vampiric_curse"
+    label: "诅咒"
+    kind: institution
+    entity_type: "supernatural_law"
+    tags: ["curse", "objective-rule-source"]

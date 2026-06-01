@@ -1,0 +1,7 @@
+- id: "vampire_clock"
+  name: "叙事时钟"
+  is_primary: true
+  tick_rate: 1
+  units:
+    - name: "narrative_beat"
+      ratio: 1

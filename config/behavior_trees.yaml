@@ -1,0 +1,12 @@
+bt_vampire_response:
+  type: selector
+  children:
+    - condition:
+        world_state: game_phase
+        eq: ended
+      action:
+        semantic_intent: "描述消亡"
+        call_handler: "vampire:process_demise"
+    - action:
+        semantic_intent: "处理提示并生成叙事回应"
+        call_handler: "vampire:process_turn"

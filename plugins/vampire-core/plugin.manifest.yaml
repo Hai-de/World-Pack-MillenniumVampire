@@ -1,0 +1,37 @@
+manifest_version: "plugin/v1"
+id: "vampire-core"
+name: "吸血鬼核心逻辑"
+version: "0.1.0"
+kind: "game_loop"
+entrypoints:
+  server:
+    source: "src/server.ts"
+    runtime: "node_esm"
+compatibility:
+  yidhras: ">=0.1.0"
+  host_api: ">=2.0.0"
+  pack_id: "vampire_millennium"
+requested_capabilities:
+  - "server.pack_storage.access"
+  - "server.inference.request"
+  - "server.rule_contributor.register"
+  - "server.data_cleaner.register"
+contributions:
+  server:
+    rule_contributors:
+      - name: "vampire-substitution-rules"
+        priority: 50
+        invoke: "vampire:rule_contributor"
+        supportsRuleIds:
+          - "rule_skill_substitution"
+          - "rule_resource_substitution"
+          - "rule_demise"
+    data_cleaners:
+      - name: "vampire-memory-decay"
+        key: "data_cleaner.vampire.memory_decay"
+        version: "1.0.0"
+        trigger: "on_tick"
+        priority: 50
+        invoke: "vampire:memory_decay"
+load:
+  priority: 100
