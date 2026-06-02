@@ -5,13 +5,13 @@
 
     <!-- 主体区域 -->
     <div class="vampire-app-shell__body">
-      <!-- 桌面端侧边栏 (≥1024px) -->
+      <!-- 宽屏桌面端侧边栏 (≥1280px) -->
       <Sidebar
-        v-if="isDesktop"
+        v-if="isWideDesktop"
         class="vampire-app-shell__sidebar"
       />
 
-      <!-- 平板端图标栏 (768px-1023px) -->
+      <!-- 平板/窄桌面端图标栏 (768px-1279px) -->
       <div
         v-else-if="isTablet"
         class="vampire-app-shell__tablet-rail"
@@ -29,12 +29,13 @@
 
       <!-- 主内容区 -->
       <main class="vampire-app-shell__main">
+        <slot />
         <router-view />
       </main>
     </div>
 
     <!-- 移动端底部导航 (<768px) -->
-    <BottomTabBar v-if="isMobile" class="vampire-app-shell__bottombar" />
+    <BottomTabBar v-if="isMobile" class="vampire-app-shell__bottombar" @open-drawer="drawerOpen = true" />
 
     <!-- 移动端抽屉菜单 -->
     <DrawerMenu
@@ -48,7 +49,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, provide, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUiStore } from '../../stores/uiStore'
 import TopStatusBar from './TopStatusBar.vue'
 import Sidebar from './Sidebar.vue'
@@ -56,31 +58,38 @@ import BottomTabBar from './BottomTabBar.vue'
 import DrawerMenu from './DrawerMenu.vue'
 import EventToastStack from '../game/EventToastStack.vue'
 
+const router = useRouter()
 const uiStore = useUiStore()
 const drawerOpen = ref(false)
 const windowWidth = ref(window.innerWidth)
 
 // 响应式断点
-const isDesktop = computed(() => windowWidth.value >= 1024)
-const isTablet = computed(() => windowWidth.value >= 768 && windowWidth.value < 1024)
+const isWideDesktop = computed(() => windowWidth.value >= 1280)
+const isTablet = computed(() => windowWidth.value >= 768 && windowWidth.value < 1280)
 const isMobile = computed(() => windowWidth.value < 768)
+
+// 向子页面暴露断点状态
+provide('vampire-layout-is-mobile', isMobile)
+provide('vampire-layout-is-tablet', isTablet)
+provide('vampire-layout-is-desktop', isWideDesktop)
 
 // 侧边栏/图标栏项目
 const sidebarItems = [
-  { id: 'vampire', icon: '🧛', label: '吸血鬼状态' },
-  { id: 'skills', icon: '⚔️', label: '技艺' },
-  { id: 'resources', icon: '📦', label: '资源' },
-  { id: 'diary', icon: '📖', label: '日记' },
-  { id: 'characters', icon: '👥', label: '角色' },
-  { id: 'marks', icon: '👁️', label: '印记' },
-  { id: 'memories', icon: '🧠', label: '回忆' },
-  { id: 'settings', icon: '⚙️', label: '设置' }
+  { id: 'vampire', icon: '🧛', label: '吸血鬼状态', route: '/' },
+  { id: 'skills', icon: '⚔️', label: '技艺', route: '/skills' },
+  { id: 'resources', icon: '📦', label: '资源', route: '/resources' },
+  { id: 'diary', icon: '📖', label: '日记', route: '/diary' },
+  { id: 'characters', icon: '👥', label: '角色', route: '/characters' },
+  { id: 'marks', icon: '👁️', label: '印记', route: '/marks' },
+  { id: 'memories', icon: '🧠', label: '回忆', route: '/memories' },
+  { id: 'settings', icon: '⚙️', label: '设置', route: '/settings' }
 ]
 
 function handleRailItemClick(itemId: string) {
   uiStore.setActivePanel(itemId)
-  if (!uiStore.sidebarOpen) {
-    uiStore.toggleSidebar()
+  const item = sidebarItems.find(i => i.id === itemId)
+  if (item?.route) {
+    router.push(item.route)
   }
 }
 
@@ -101,7 +110,10 @@ onUnmounted(() => {
 .vampire-app-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  max-width: 100vw;
+  overflow: hidden;
   background-color: var(--vampire-bg-base);
 }
 
@@ -115,6 +127,7 @@ onUnmounted(() => {
 .vampire-app-shell__body {
   display: flex;
   flex: 1;
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -166,8 +179,9 @@ onUnmounted(() => {
 /* 主内容区 */
 .vampire-app-shell__main {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
-  padding: 16px;
+  padding: var(--vampire-page-padding);
 }
 
 /* 移动端底部导航 */
@@ -183,17 +197,18 @@ onUnmounted(() => {
 /* 响应式调整 */
 @media (max-width: 767px) {
   .vampire-app-shell__main {
-    padding-bottom: calc(var(--vampire-bottombar-height) + 16px);
+    padding: var(--vampire-page-padding-mobile);
+    padding-bottom: calc(var(--vampire-bottombar-height) + var(--vampire-page-padding-mobile) + env(safe-area-inset-bottom, 0px));
   }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 1279px) {
   .vampire-app-shell__sidebar {
     display: none;
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .vampire-app-shell__tablet-rail {
     display: none;
   }

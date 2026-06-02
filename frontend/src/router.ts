@@ -29,6 +29,24 @@ const routes: RouteRecordRaw[] = [
     component: () => import('./pages/ChroniclePage.vue')
   },
   {
+    path: '/skills',
+    name: 'skills',
+    component: () => import('./pages/SkillsPage.vue'),
+    meta: { requiresPlaying: true }
+  },
+  {
+    path: '/resources',
+    name: 'resources',
+    component: () => import('./pages/ResourcesPage.vue'),
+    meta: { requiresPlaying: true }
+  },
+  {
+    path: '/marks',
+    name: 'marks',
+    component: () => import('./pages/MarksPage.vue'),
+    meta: { requiresPlaying: true }
+  },
+  {
     path: '/memories',
     name: 'memories',
     component: () => import('./pages/MemoriesPage.vue')
@@ -51,6 +69,8 @@ const routes: RouteRecordRaw[] = [
 ]
 
 export function createVampireRouter() {
+  let stateLoaded = false
+
   const router = createRouter({
     history: createWebHashHistory(),
     routes
@@ -60,17 +80,19 @@ export function createVampireRouter() {
     const gameStore = useGameStore()
     const phase = gameStore.gamePhase
 
-    // 游戏未初始化：只能访问欢迎页
+    if (!stateLoaded) {
+      next()
+      return
+    }
+
     if (phase === 'uninitialized' && to.name !== 'welcome') {
       return next({ name: 'welcome' })
     }
 
-    // 正在车卡：只能访问车卡页
     if (phase === 'character_creation' && to.name !== 'character-creation') {
       return next({ name: 'character-creation' })
     }
 
-    // 游戏已结束或进行中：不能回到欢迎页
     if ((phase === 'playing' || phase === 'ended') && to.name === 'welcome') {
       return next({ name: 'home' })
     }
@@ -78,5 +100,9 @@ export function createVampireRouter() {
     next()
   })
 
-  return router
+  const markStateLoaded = () => {
+    stateLoaded = true
+  }
+
+  return { router, markStateLoaded }
 }

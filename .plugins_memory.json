@@ -1,0 +1,24 @@
+{
+  "enabled_plugins": {
+    "vampire-core": {
+      "plugin_id": "vampire-core",
+      "confirmed_at": "2026-06-01T20:46:59.766Z",
+      "granted_capabilities": [
+        "server.pack_storage.access",
+        "server.inference.request",
+        "server.rule_contributor.register",
+        "server.data_cleaner.register",
+        "server.step_contributor.register"
+      ]
+    },
+    "mortality": {
+      "plugin_id": "mortality",
+      "confirmed_at": "2026-06-01T20:46:59.920Z",
+      "granted_capabilities": [
+        "server.step_contributor.register",
+        "server.pack_storage.access",
+        "server.event.emit"
+      ]
+    }
+  }
+}

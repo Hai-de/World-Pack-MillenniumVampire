@@ -63,4 +63,20 @@
   --vampire-sidebar-collapsed: 48px;
   --vampire-topbar-height: 48px;
   --vampire-bottombar-height: 56px;
+
+  /* ─── 响应式断点 ─── */
+  --vampire-breakpoint-mobile: 480px;
+  --vampire-breakpoint-tablet: 768px;
+  --vampire-breakpoint-desktop: 1024px;
+  --vampire-breakpoint-wide: 1280px;
+
+  /* ─── 内容区最大宽度 ─── */
+  --vampire-content-max-width-welcome: 580px;
+  --vampire-content-max-width-reader: 800px;
+  --vampire-content-max-width-settings: 640px;
+  --vampire-content-max-width-main: 1200px;
+
+  /* ─── 页面内边距 ─── */
+  --vampire-page-padding: 24px;
+  --vampire-page-padding-mobile: 16px;
 }

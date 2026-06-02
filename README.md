@@ -1,6 +1,6 @@
 # 千年吸血鬼 (Millennium Vampire)
 
-单人日记式吸血鬼角色扮演世界包。一名吸血鬼在千年历史中用第一人称记录自己的经历。核心模拟对象是吸血鬼主体、记忆、时间流逝。
+单人日记式吸血鬼角色扮演世界包。一名吸血鬼在千年历史中用第一人称记录自己的经历。核心模拟对象是吸血鬼主体、回忆、时间流逝。
 
 > 在这里的吸血鬼并非世俗意义上的传统吸血鬼——食用人类某个部位的生物都可以被认为是吸血鬼，也就是食人的怪物。
 
@@ -92,7 +92,7 @@ vampire_millennium/
 | `perceive.diary_entries` | 日记条目列表 |
 | `perceive.chronicle` | 已消费提示历史（编年史） |
 | `perceive.full_state_snapshot` | 完整状态快照（重连同步） |
-| `perceive.recorded_memory` | 日记中已记录的记忆 |
+| `perceive.recorded_memory` | 日记中已记录的回忆 |
 
 ### invoke — 异步调用
 | Key | 说明 |
@@ -113,7 +113,7 @@ vampire_millennium/
 - 行为树 callHandler（`process_turn` / `process_demise`）
 - 替代规则评估（RuleContributor）
 - 提示池管理（种子 10 条 + AI 补充）
-- 记忆衰减（DataCleaner）
+- 回忆衰减（DataCleaner）
 
 **注册的扩展点**：
 - `server.pack_storage.access`

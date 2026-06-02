@@ -1,7 +1,7 @@
 <template>
   <header class="vampire-topbar">
     <div class="vampire-topbar__left">
-      <span class="vampire-topbar__era">{{ gameStore.currentEra }}</span>
+      <span class="vampire-topbar__era">硬编码：没想好放什么</span>
     </div>
 
     <div class="vampire-topbar__center">
@@ -78,6 +78,21 @@ function toggleMode() {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+}
+
+.vampire-topbar__left {
+  flex-shrink: 1;
+  overflow: hidden;
+}
+
+.vampire-topbar__center {
+  flex-shrink: 2;
+  overflow: hidden;
+}
+
+.vampire-topbar__right {
+  flex-shrink: 0;
 }
 
 .vampire-topbar__era {
@@ -85,10 +100,16 @@ function toggleMode() {
   font-family: var(--vampire-font-heading);
   font-weight: 600;
   font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vampire-topbar__dice-result {
   color: var(--vampire-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vampire-topbar__dice-positive {
@@ -109,6 +130,9 @@ function toggleMode() {
   gap: 6px;
   font-size: 0.75rem;
   color: var(--vampire-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vampire-topbar__connection--reconnecting {
@@ -154,5 +178,28 @@ function toggleMode() {
 .vampire-topbar__mode-toggle:hover {
   background-color: var(--vampire-ink-dim);
   color: var(--vampire-text-primary);
+}
+
+/* ─── 窄屏适配 ─── */
+@media (max-width: 480px) {
+  .vampire-topbar {
+    padding: 0 8px;
+    gap: 4px;
+  }
+
+  .vampire-topbar__left,
+  .vampire-topbar__center,
+  .vampire-topbar__right {
+    gap: 4px;
+  }
+
+  .vampire-topbar__era {
+    font-size: 0.75rem;
+  }
+
+  .vampire-topbar__mode-toggle {
+    padding: 4px 8px;
+    font-size: 0.6875rem;
+  }
 }
 </style>

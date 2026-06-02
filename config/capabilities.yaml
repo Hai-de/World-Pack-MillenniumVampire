@@ -20,6 +20,11 @@
   description: "读取已消费提示历史（编年史）"
   default_visibility: actor_local
 
+- key: perceive.roll_dice
+  category: perceive
+  description: "投掷骰子并滑动提示池位置（同步返回结果）"
+  default_visibility: actor_local
+
 - key: perceive.full_state_snapshot
   category: perceive
   description: "获取游戏完整状态快照（用于重连同步）"
@@ -27,7 +32,7 @@
 
 - key: perceive.recorded_memory
   category: perceive
-  description: "读取日记中已记录的记忆"
+  description: "读取日记中已记录的回忆"
   default_visibility: actor_local
 
 # ─── invoke: 异步调用 ───
@@ -52,7 +57,12 @@
   description: "根据当前经历写下一则日记条目，将主观经历固化为可回读的记录"
   default_visibility: actor_local
 
+- key: invoke.reset_game
+  category: invoke
+  description: "重置游戏到未开始状态，清除角色和回忆"
+  default_visibility: actor_local
+
 - key: invoke.pass_time
   category: invoke
-  description: "推进一段不确定长度的时间，触发记忆自然衰退与时代变化"
+  description: "推进一段不确定长度的时间，触发回忆自然衰退与时代变化"
   default_visibility: operator

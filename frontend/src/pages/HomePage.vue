@@ -2,24 +2,20 @@
   <div class="vampire-home-page">
     <AppShell>
       <div class="vampire-home-page__content">
-        <!-- 顶部：骰子和当前提示 -->
-        <div class="vampire-home-page__top">
-          <div class="vampire-home-page__dice-section">
-            <DiceRoller />
-          </div>
-          <div class="vampire-home-page__prompt-section">
-            <PromptDisplay @respond="handlePromptRespond" />
-          </div>
+
+        <!-- 顶部：当前提示 -->
+        <div class="vampire-home-page__prompt-section">
+          <PromptDisplay />
         </div>
 
-        <!-- 中间：回应编辑器（当有提示时显示） -->
-        <div v-if="activePromptId" class="vampire-home-page__response-section">
-          <VampireResponse :prompt-id="activePromptId" @submitted="handleResponseSubmitted" />
+        <!-- 中间：回应编辑器（常驻） -->
+        <div class="vampire-home-page__response-section">
+          <VampireResponse @submitted="handleResponseSubmitted" />
         </div>
 
-        <!-- 底部：角色状态预览 -->
-        <div class="vampire-home-page__sidebar-preview">
-          <CharacterPanel />
+        <!-- 底部：骰子 -->
+        <div class="vampire-home-page__dice-section">
+          <DiceRoller />
         </div>
       </div>
     </AppShell>
@@ -27,87 +23,57 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import AppShell from '../components/layout/AppShell.vue'
 import DiceRoller from '../components/game/DiceRoller.vue'
 import PromptDisplay from '../components/game/PromptDisplay.vue'
 import VampireResponse from '../components/game/VampireResponse.vue'
-import CharacterPanel from '../components/character/CharacterPanel.vue'
-import { useGameStore } from '../stores/gameStore'
-
-const gameStore = useGameStore()
-const activePromptId = ref<string | null>(null)
-
-function handlePromptRespond(promptId: string) {
-  activePromptId.value = promptId
-}
 
 function handleResponseSubmitted(response: string) {
-  // 提交成功后清除活跃提示
-  activePromptId.value = null
-  
-  // 这里可以添加提交后的逻辑，如更新状态等
   console.log('Response submitted:', response.substring(0, 100) + '...')
 }
 </script>
 
 <style scoped>
-.vampire-home-page {
-  height: 100%;
-}
-
 .vampire-home-page__content {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 24px;
-  height: 100%;
-  padding: 24px;
-  max-width: 1200px;
+  min-width: 0;
+  padding: var(--vampire-page-padding);
+  padding-bottom: 48px;
+  max-width: var(--vampire-content-max-width-main);
   margin: 0 auto;
 }
 
-.vampire-home-page__top {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 24px;
-}
-
-.vampire-home-page__dice-section {
-  position: sticky;
-  top: 24px;
-  align-self: start;
-}
-
+/* ─── 提示区：顶部，占主要视觉焦点 ─── */
 .vampire-home-page__prompt-section {
-  min-height: 200px;
+  width: 100%;
+  max-width: 720px;
+  min-height: 120px;
+  min-width: 0;
 }
 
+/* ─── 骰子区：居中，始终可见 ─── */
+.vampire-home-page__dice-section {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ─── 回应区：底部，展开时占主要编辑空间 ─── */
 .vampire-home-page__response-section {
+  width: 100%;
+  max-width: 720px;
   min-height: 300px;
+  min-width: 0;
 }
 
-.vampire-home-page__sidebar-preview {
-  display: none; /* 在桌面端侧边栏显示，移动端隐藏 */
-}
-
-/* 响应式调整 */
-@media (max-width: 1023px) {
-  .vampire-home-page__top {
-    grid-template-columns: 1fr;
-  }
-  
-  .vampire-home-page__dice-section {
-    position: static;
-  }
-}
-
+/* ─── 响应式 ─── */
 @media (max-width: 767px) {
   .vampire-home-page__content {
-    padding: 16px;
-    padding-bottom: calc(var(--vampire-bottombar-height) + 16px);
-  }
-  
-  .vampire-home-page__top {
+    padding: var(--vampire-page-padding-mobile);
+    padding-bottom: calc(var(--vampire-bottombar-height) + var(--vampire-page-padding-mobile) + env(safe-area-inset-bottom, 0px));
     gap: 16px;
   }
 }

@@ -11,19 +11,12 @@ import './design/tokens.css'
 import './design/fonts.css'
 import './design/base.css'
 
-// Load Google Fonts via non-blocking <link> instead of CSS @import.
-// CSS @import blocks the entire stylesheet until the cross-origin font CSS
-// is fetched and parsed — which can take seconds from regions where Google
-// services are slow.  A <link> element loads in parallel with style.css.
 const GOOGLE_FONTS_URL =
   'https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap'
 
 const fontLinkEl = document.createElement('link')
 fontLinkEl.rel = 'stylesheet'
 fontLinkEl.href = GOOGLE_FONTS_URL
-// Inject before any other stylesheet so font faces are available when the
-// pack CSS applies.  Must happen synchronously on module evaluation — if
-// deferred to mount(), fonts load after the first paint.
 document.head.appendChild(fontLinkEl)
 
 /**
@@ -34,13 +27,14 @@ document.head.appendChild(fontLinkEl)
 export function mount(target: HTMLElement, context: ShellContext): App {
   const app = createApp(RootComponent)
   const pinia = createPinia()
-  const router = createVampireRouter()
+  const { router, markStateLoaded } = createVampireRouter()
 
   app.use(pinia)
   app.use(router)
 
-  // 注入 ShellContext，所有子组件通过 inject(SHELL_CONTEXT_KEY) 获取
+  // 注入 ShellContext + markStateLoaded，App.vue 在状态加载完成后调用
   app.provide(SHELL_CONTEXT_KEY, context)
+  app.provide('markStateLoaded', markStateLoaded)
 
   app.mount(target)
   return app

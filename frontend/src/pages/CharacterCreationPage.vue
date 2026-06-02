@@ -1,6 +1,8 @@
 <template>
-  <div class="vampire-character-creation-page">
-    <CharacterCreation />
+  <div class="vampire-character-creation-page vampire-standalone-page">
+    <div class="vampire-standalone-page__inner">
+      <CharacterCreation />
+    </div>
   </div>
 </template>
 
@@ -9,14 +11,4 @@ import CharacterCreation from '../components/character/CharacterCreation.vue'
 </script>
 
 <style scoped>
-.vampire-character-creation-page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 24px;
-  background:
-    radial-gradient(ellipse at 50% 0%, var(--vampire-blood-dim) 0%, transparent 60%),
-    var(--vampire-bg-deep);
-}
 </style>

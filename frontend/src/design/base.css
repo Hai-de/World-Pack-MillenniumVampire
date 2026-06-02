@@ -25,6 +25,8 @@ body {
   color: var(--vampire-text-primary);
   background-color: var(--vampire-bg-base);
   min-height: 100vh;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 /* ─── 链接 ─── */
@@ -130,7 +132,7 @@ a:hover {
   font-weight: 500;
 }
 
-/* ─── 褪色效果（用于旧记忆） ─── */
+/* ─── 褪色效果（用于旧回忆） ─── */
 .vampire-faded {
   opacity: 0.5;
   filter: blur(0.5px);
@@ -140,4 +142,80 @@ a:hover {
 .vampire-faded:hover {
   opacity: 0.8;
   filter: none;
+}
+
+/* ─── 独立全屏页面（WelcomePage / CharacterCreationPage）
+   滚动策略：
+     - 宿主 Nuxt 对 html/body 设了 overflow:hidden，viewport 不滚动
+     - .vampire-app（App.vue）是唯一滚动宿主：height:100vh + overflow-y:auto
+     - standalone-page 通过 min-height:100vh 填满视口
+     - 内容超出时，页面撑高，由 .vampire-app 产生滚动
+     - __inner / __container 自身不再设 min-height，避免双层固定高度锁死滚动 ─── */
+.vampire-standalone-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: var(--vampire-page-padding);
+  padding-bottom: calc(var(--vampire-page-padding) + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(ellipse at 50% 0%, var(--vampire-blood-dim) 0%, transparent 60%),
+    var(--vampire-bg-deep);
+}
+
+/* 短内容页面用 margin:auto 居中；长内容自然从顶部开始，允许 body 滚动 */
+.vampire-standalone-page--centered {
+  justify-content: center;
+}
+
+/* 内容包装层：宽度 100%，max-width 由各页面组件自行设定
+   靠父级 standalone-page align-items:center 实现水平居中 */
+.vampire-standalone-page__inner,
+.vampire-welcome__container {
+  width: 100%;
+}
+
+/* 内容过多时子元素不被压缩 */
+.vampire-standalone-page__inner > *,
+.vampire-welcome__container > * {
+  flex-shrink: 0;
+}
+
+/* ─── AppShell 内页面内容区 ─── */
+.vampire-app-page-content {
+  padding: var(--vampire-page-padding);
+  max-width: var(--vampire-content-max-width-reader);
+  min-width: 0;
+  margin: 0 auto;
+  height: 100%;
+}
+
+/* ─── AppShell 内宽内容区（HomePage 游戏区） ─── */
+.vampire-app-page-content--wide {
+  max-width: var(--vampire-content-max-width-main);
+}
+
+/* ─── 响应式：移动端 padding 缩小 ─── */
+@media (max-width: 767px) {
+  .vampire-standalone-page {
+    padding: var(--vampire-page-padding-mobile);
+    padding-bottom: calc(var(--vampire-page-padding-mobile) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .vampire-standalone-page__inner,
+  .vampire-welcome__container {
+    min-height: calc(100vh - var(--vampire-page-padding-mobile) * 2);
+    min-height: calc(100dvh - var(--vampire-page-padding-mobile) * 2);
+  }
+
+  .vampire-app-page-content {
+    padding: var(--vampire-page-padding-mobile);
+    padding-bottom: calc(var(--vampire-bottombar-height) + var(--vampire-page-padding-mobile) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .vampire-app-page-content--wide {
+    padding-bottom: calc(var(--vampire-bottombar-height) + var(--vampire-page-padding-mobile) + env(safe-area-inset-bottom, 0px));
+  }
 }

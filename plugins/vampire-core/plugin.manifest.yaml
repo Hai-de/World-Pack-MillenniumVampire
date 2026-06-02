@@ -16,6 +16,7 @@ requested_capabilities:
   - "server.inference.request"
   - "server.rule_contributor.register"
   - "server.data_cleaner.register"
+  - "server.step_contributor.register"
 contributions:
   server:
     rule_contributors:

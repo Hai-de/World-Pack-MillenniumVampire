@@ -24,9 +24,11 @@
 
 <script setup lang="ts">
 const drawerItems = [
+  { route: '/skills', icon: '⚔️', label: '技艺' },
+  { route: '/resources', icon: '📦', label: '资源' },
+  { route: '/marks', icon: '👁️', label: '印记' },
   { route: '/characters', icon: '👥', label: '角色' },
-  { route: '/chronicle', icon: '📜', label: '编年史' },
-  { route: '/settings', icon: '⚙️', label: '设置' }
+  { route: '/chronicle', icon: '📜', label: '编年史' }
 ]
 
 defineEmits<{

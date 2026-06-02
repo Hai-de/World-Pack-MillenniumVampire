@@ -9,3 +9,73 @@
   priority: 50
   status: "active"
   revocable: true
+
+# ── Operator (前端玩家) 授权 ──
+# 玩家通过前端 UI 操作角色创建、投骰子、回应提示等。
+# 目标选择器匹配 operator 身份（identity 绑定为 subject）。
+
+- id: "authority_operator_invoke_character_creation"
+  source_entity_id: "institution_vampiric_curse"
+  target_selector:
+    kind: "binding_of"
+    entity_id: "actor_vampire"
+  capability_key: "invoke.character_creation"
+  grant_type: "intrinsic"
+  priority: 100
+  status: "active"
+  revocable: false
+
+- id: "authority_operator_invoke_roll_dice"
+  source_entity_id: "institution_vampiric_curse"
+  target_selector:
+    kind: "binding_of"
+    entity_id: "actor_vampire"
+  capability_key: "invoke.roll_dice"
+  grant_type: "intrinsic"
+  priority: 100
+  status: "active"
+  revocable: false
+
+- id: "authority_operator_invoke_respond_to_prompt"
+  source_entity_id: "institution_vampiric_curse"
+  target_selector:
+    kind: "binding_of"
+    entity_id: "actor_vampire"
+  capability_key: "invoke.respond_to_prompt"
+  grant_type: "intrinsic"
+  priority: 100
+  status: "active"
+  revocable: false
+
+- id: "authority_operator_invoke_reset_game"
+  source_entity_id: "institution_vampiric_curse"
+  target_selector:
+    kind: "binding_of"
+    entity_id: "actor_vampire"
+  capability_key: "invoke.reset_game"
+  grant_type: "intrinsic"
+  priority: 100
+  status: "active"
+  revocable: false
+
+- id: "authority_operator_invoke_pass_time"
+  source_entity_id: "institution_vampiric_curse"
+  target_selector:
+    kind: "binding_of"
+    entity_id: "actor_vampire"
+  capability_key: "invoke.pass_time"
+  grant_type: "intrinsic"
+  priority: 100
+  status: "active"
+  revocable: false
+
+- id: "authority_operator_perceive"
+  source_entity_id: "institution_vampiric_curse"
+  target_selector:
+    kind: "binding_of"
+    entity_id: "actor_vampire"
+  capability_key: "perceive.character_state"
+  grant_type: "intrinsic"
+  priority: 100
+  status: "active"
+  revocable: false

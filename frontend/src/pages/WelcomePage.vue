@@ -1,6 +1,5 @@
 <template>
-  <div class="vampire-welcome">
-    <!-- 暗色全屏背景，无 AppShell，独立布局 -->
+  <div class="vampire-welcome vampire-standalone-page vampire-standalone-page--centered">
     <div class="vampire-welcome__bg" />
 
     <div class="vampire-welcome__container">
@@ -73,15 +72,10 @@ function startCreation() {
 
 <style scoped>
 .vampire-welcome {
-  position: relative;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
 }
 
-/* 渐变背景 */
+/* 渐变背景层 */
 .vampire-welcome__bg {
   position: fixed;
   inset: 0;
@@ -98,9 +92,7 @@ function startCreation() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 580px;
-  width: 100%;
-  padding: 48px 24px;
+  padding: 48px 0;
   text-align: center;
 }
 
@@ -111,7 +103,7 @@ function startCreation() {
 
 .vampire-welcome__title {
   font-family: var(--vampire-font-heading);
-  font-size: 3rem;
+  font-size: clamp(2rem, 6vw, 3rem);
   font-weight: 700;
   color: var(--vampire-gold);
   letter-spacing: 0.08em;
@@ -121,7 +113,7 @@ function startCreation() {
 
 .vampire-welcome__subtitle {
   font-family: var(--vampire-font-heading);
-  font-size: 1rem;
+  font-size: clamp(0.75rem, 2vw, 1rem);
   font-weight: 400;
   color: var(--vampire-text-muted);
   letter-spacing: 0.25em;
@@ -207,7 +199,7 @@ function startCreation() {
 .vampire-welcome__cta {
   padding: 14px 48px;
   font-family: var(--vampire-font-heading);
-  font-size: 1rem;
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
   font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--vampire-parchment);
@@ -235,19 +227,64 @@ function startCreation() {
   font-style: italic;
 }
 
-/* ─── 响应式 ─── */
+/* ─── 响应式：平板竖屏及以下 ─── */
 @media (max-width: 767px) {
-  .vampire-welcome__title {
-    font-size: 2.25rem;
+  .vampire-welcome__container {
+    padding: 24px 0;
+  }
+
+  .vampire-welcome__header {
+    margin-bottom: 28px;
+  }
+
+  .vampire-welcome__lore {
+    margin-bottom: 28px;
   }
 
   .vampire-welcome__lore-card {
     padding: 20px;
   }
 
+  .vampire-welcome__lore-line {
+    font-size: 0.875rem;
+  }
+
+  .vampire-welcome__rules {
+    margin-bottom: 32px;
+  }
+
   .vampire-welcome__cta {
     width: 100%;
-    max-width: 320px;
+    max-width: 100%;
+    padding: 14px 24px;
+  }
+}
+
+/* ─── 响应式：小屏手机 ─── */
+@media (max-width: 479px) {
+  .vampire-welcome__container {
+    padding: 16px 0;
+  }
+
+  .vampire-welcome__header {
+    margin-bottom: 24px;
+  }
+
+  .vampire-welcome__lore-card {
+    padding: 16px;
+  }
+
+  .vampire-welcome__rule-item {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .vampire-welcome__rule-text {
+    font-size: 0.75rem;
+  }
+
+  .vampire-welcome__hint {
+    font-size: 0.6875rem;
   }
 }
 </style>

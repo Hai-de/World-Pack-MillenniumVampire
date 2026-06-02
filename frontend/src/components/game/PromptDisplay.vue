@@ -22,46 +22,32 @@
         <span class="vampire-prompt-display__position">
           位置 #{{ prompt.position }}
         </span>
-        <span
-          class="vampire-prompt-display__status"
-          :class="`vampire-prompt-display__status--${promptState}`"
-        >
-          {{ promptState === 'new' ? '新提示' : promptState === 'read' ? '已读' : '已处理' }}
-        </span>
       </div>
 
       <div class="vampire-prompt-display__body vampire-handwritten">
         {{ prompt.content }}
-      </div>
-
-      <div class="vampire-prompt-display__footer">
-        <button
-          v-if="promptState !== 'processed'"
-          type="button"
-          class="vampire-prompt-display__respond-btn"
-          @click="$emit('respond', prompt.id)"
-        >
-          回应此提示
-        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { usePromptStore } from '../../stores/promptStore'
+import { watch } from 'vue'
+import { useGameStore } from '../../stores/gameStore'
 import { useVampireAsync } from '../../composables/useVampireAsync'
 import { useShellAuth } from '../../composables/useShellAuth'
 import VampireSkeleton from '../shared/VampireSkeleton.vue'
 import VampireErrorBanner from '../shared/VampireErrorBanner.vue'
 
-const promptStore = usePromptStore()
+const gameStore = useGameStore()
 const { httpClient } = useShellAuth()
 
 const { data: prompt, status, error, retry } = useVampireAsync(
   async () => {
     const result = await httpClient.getCurrentPrompt()
+    if (!result || !result.id) {
+      return null
+    }
     return {
       id: result.id,
       content: result.content,
@@ -71,17 +57,10 @@ const { data: prompt, status, error, retry } = useVampireAsync(
   { isEmpty: (d) => !d }
 )
 
-const promptState = computed(() => {
-  if (!prompt.value) return 'new'
-  const existing = promptStore.promptPool.find(p => p.id === prompt.value!.id)
-  if (!existing) return 'new'
-  if (existing.consumed) return 'processed'
-  return 'read'
+// 每次投骰后重新拉取提示
+watch(() => gameStore.diceRollCount, () => {
+  retry()
 })
-
-defineEmits<{
-  respond: [promptId: string]
-}>()
 </script>
 
 <style scoped>

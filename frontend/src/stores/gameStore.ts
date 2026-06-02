@@ -24,6 +24,7 @@ export const useGameStore = defineStore('game', () => {
   const vampireMode = ref<GameStoreState['vampireMode']>('player')
   const currentTick = ref<number>(0)
   const lastPromptId = ref<string | null>(null)
+  const diceRollCount = ref<number>(0)
 
   // ─── 计算属性 ───
   const isPlaying = computed(() => gamePhase.value === 'playing')
@@ -47,6 +48,10 @@ export const useGameStore = defineStore('game', () => {
     vampireMode.value = mode
   }
 
+  function incrementDiceRollCount() {
+    diceRollCount.value++
+  }
+
   function advanceTick(steps: number = 1) {
     currentTick.value += steps
   }
@@ -58,6 +63,7 @@ export const useGameStore = defineStore('game', () => {
     vampireMode.value = 'player'
     currentTick.value = 0
     lastPromptId.value = null
+    diceRollCount.value = 0
   }
 
   return {
@@ -68,6 +74,7 @@ export const useGameStore = defineStore('game', () => {
     vampireMode,
     currentTick,
     lastPromptId,
+    diceRollCount,
     // 计算属性
     isPlaying,
     isEnded,
@@ -78,6 +85,7 @@ export const useGameStore = defineStore('game', () => {
     setGamePhase,
     setVampireMode,
     advanceTick,
-    resetGame
+    resetGame,
+    incrementDiceRollCount
   }
 })

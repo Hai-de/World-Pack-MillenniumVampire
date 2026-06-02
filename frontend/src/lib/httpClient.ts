@@ -39,11 +39,19 @@ export class VampireHttpClient {
 
     if (!response.ok) {
       const errorBody = await response.json().catch(() => ({}))
-      throw new Error(errorBody.error ?? `Action failed: ${response.status}`)
+      const errorInfo = errorBody.error
+      const message = typeof errorInfo === 'object' && errorInfo !== null
+        ? errorInfo.message ?? errorInfo.code ?? `Action failed: ${response.status}`
+        : typeof errorInfo === 'string'
+          ? errorInfo
+          : `Action failed: ${response.status}`
+      console.error(`[HttpClient] ${capabilityKey} failed (${response.status}):`, message, errorBody)
+      throw new Error(message)
     }
 
     const result: ActionResponse<T> = await response.json()
     if (!result.success) {
+      console.error(`[HttpClient] ${capabilityKey} returned success=false:`, result.error)
       throw new Error(result.error ?? 'Action returned success=false')
     }
 
@@ -74,8 +82,8 @@ export class VampireHttpClient {
 
   // ─── invoke.* 调用（异步，返回 intent_id） ───
 
-  async rollDice(): Promise<{ intent_id: string; d10: number; d6: number; total: number }> {
-    return this.request('invoke.roll_dice')
+  async rollDice(): Promise<{ d10: number; d6: number; total: number; prompt: { id: string; content: string; position: number } }> {
+    return this.request('perceive.roll_dice')
   }
 
   async respondToPrompt(payload: {
@@ -86,19 +94,69 @@ export class VampireHttpClient {
     return this.request('invoke.respond_to_prompt', payload)
   }
 
-  async writeDiaryEntry(payload: {
-    memoryId: string
-  }): Promise<{ intent_id: string }> {
-    return this.request('invoke.write_diary_entry', payload)
-  }
-
   async characterCreation(payload: {
     formData: Record<string, unknown>
   }): Promise<{ intent_id: string }> {
     return this.request('invoke.character_creation', payload)
   }
 
+  async archiveMemory(payload: {
+    memoryId: string
+  }): Promise<{ memoryId: string; archived: boolean }> {
+    return this.request('invoke.archive_memory', payload)
+  }
+
+  async deleteMemory(payload: {
+    memoryId: string
+  }): Promise<{ memoryId: string; deleted: boolean }> {
+    return this.request('invoke.delete_memory', payload)
+  }
+
+  async renameMemory(payload: {
+    memoryId: string
+    name: string
+  }): Promise<{ memoryId: string; name: string }> {
+    return this.request('invoke.rename_memory', payload)
+  }
+
+  async resetGame(): Promise<{ intent_id: string }> {
+    return this.request('invoke.reset_game')
+  }
+
   async passTime(): Promise<{ intent_id: string }> {
     return this.request('invoke.pass_time')
   }
+
+  // ─── 插件查询 ───
+
+  async getPlugins(): Promise<{ pack_id: string; items: PluginSummary[]; enable_warning?: unknown }> {
+    const url = `${this.baseUrl}/api/packs/${this.packId}/plugins`
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${this.authToken}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch plugins: ${response.status}`)
+    }
+
+    const result = await response.json()
+    if (!result.success) {
+      throw new Error(result.error ?? 'Failed to fetch plugins')
+    }
+
+    return result.data
+  }
+}
+
+export interface PluginSummary {
+  installation_id: string
+  plugin_id: string
+  name: string
+  version: string
+  description?: string
+  lifecycle_state: string
+  last_error?: string | null
+  enabled: boolean
 }

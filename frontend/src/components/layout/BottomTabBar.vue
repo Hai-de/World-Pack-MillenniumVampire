@@ -27,7 +27,8 @@
 const mainTabs = [
   { route: '/', icon: '🎲', label: '骰子' },
   { route: '/diary', icon: '📖', label: '日记' },
-  { route: '/memories', icon: '🧠', label: '回忆' }
+  { route: '/memories', icon: '🧠', label: '回忆' },
+  { route: '/settings', icon: '⚙️', label: '设置' }
 ]
 
 defineEmits<{

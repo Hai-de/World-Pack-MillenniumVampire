@@ -109,6 +109,10 @@ export const useCharacterStore = defineStore('character', () => {
     diaryState.value.memoryIds.length >= diaryState.value.maxCapacity
   )
 
+  const hasDiary = computed(() => 
+    resources.value.some((r: Resource) => r.kind === 'diary' && !r.lost)
+  )
+
   const isMemoryFull = computed(() => 
     activeMemories.value.length >= 5
   )
@@ -135,6 +139,21 @@ export const useCharacterStore = defineStore('character', () => {
     resources.value.push(resource)
   }
 
+  /**
+   * 创建日记：将日记注册为特殊资源（kind: 'diary'），
+   * 同时在 diaryState 中记录，使其进入可用状态。
+   */
+  function createDiary() {
+    const diaryResource: Resource = {
+      id: 'artifact_diary',
+      name: '吸血鬼日记',
+      description: '一本陈旧的日记，能够封存回忆。但它本身也可能失落于岁月之中。',
+      lost: false,
+      kind: 'diary',
+    }
+    addResource(diaryResource)
+  }
+
   function loseResource(resourceId: string) {
     const resource = resources.value.find(r => r.id === resourceId)
     if (resource) resource.lost = true
@@ -159,6 +178,13 @@ export const useCharacterStore = defineStore('character', () => {
     }
   }
 
+  function renameMemory(memoryId: string, newName: string) {
+    const memory = memories.value.find(m => m.id === memoryId)
+    if (memory) {
+      memory.name = newName
+    }
+  }
+
   function archiveMemory(memoryId: string) {
     const memory = memories.value.find(m => m.id === memoryId)
     if (memory) {
@@ -176,6 +202,14 @@ export const useCharacterStore = defineStore('character', () => {
 
   function addCharacter(character: Character) {
     characters.value.push(character)
+  }
+
+  function updateCharacter(characterId: string, patch: Partial<Pick<Character, 'name' | 'description'>>) {
+    const character = characters.value.find(c => c.id === characterId)
+    if (character) {
+      if (patch.name !== undefined) character.name = patch.name
+      if (patch.description !== undefined) character.description = patch.description
+    }
   }
 
   function killCharacter(characterId: string) {
@@ -233,7 +267,12 @@ export const useCharacterStore = defineStore('character', () => {
       }))
     }
     if (Array.isArray(state.characters)) {
-      characters.value = (state.characters as Array<Record<string, unknown>>).map((c) => ({
+      // 仅加载 state.character_ids 中的角色，过滤残留数据
+      const characterIds: string[] = Array.isArray(state.character_ids) ? state.character_ids as string[] : []
+      const filtered = characterIds.length > 0
+        ? (state.characters as Array<Record<string, unknown>>).filter((c) => characterIds.includes(c.id as string))
+        : (state.characters as Array<Record<string, unknown>>)
+      characters.value = filtered.map((c) => ({
         id: c.id as string,
         name: c.name as string,
         description: (c.description as string) ?? '',
@@ -298,6 +337,7 @@ export const useCharacterStore = defineStore('character', () => {
     testedSkills,
     untestedSkills,
     isDiaryFull,
+    hasDiary,
     isMemoryFull,
     isBothDepleted,
     // 操作
@@ -305,14 +345,17 @@ export const useCharacterStore = defineStore('character', () => {
     testSkill,
     removeSkill,
     addResource,
+    createDiary,
     loseResource,
     addMark,
     removeMark,
     addMemory,
     addExperience,
+    renameMemory,
     archiveMemory,
     removeMemory,
     addCharacter,
+    updateCharacter,
     killCharacter,
     loadFromState,
     resetCharacter

@@ -130,6 +130,9 @@ async function handleRoll() {
         total: result.total
       })
 
+      // 通知提示组件刷新
+      gameStore.incrementDiceRollCount()
+
       phase.value = 'success'
     } catch (err) {
       errorMessage.value = err instanceof Error ? err.message : '投掷失败'

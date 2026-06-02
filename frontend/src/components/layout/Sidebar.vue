@@ -1,8 +1,6 @@
 <template>
   <aside class="vampire-sidebar">
-    <div class="vampire-sidebar__header">
-      <h2 class="vampire-sidebar__title">千年吸血鬼</h2>
-    </div>
+
 
     <nav class="vampire-sidebar__nav">
       <router-link
@@ -30,8 +28,8 @@ import CharacterPanel from '../character/CharacterPanel.vue'
 const navItems = [
   { route: '/', icon: '🎲', label: '游戏' },
   { route: '/diary', icon: '📖', label: '日记' },
-  { route: '/chronicle', icon: '📜', label: '编年史' },
   { route: '/memories', icon: '🧠', label: '回忆' },
+  { route: '/chronicle', icon: '📜', label: '编年史' },
   { route: '/characters', icon: '👥', label: '角色' },
   { route: '/settings', icon: '⚙️', label: '设置' }
 ]
@@ -42,6 +40,7 @@ const navItems = [
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
 }
 
 .vampire-sidebar__header {
@@ -58,6 +57,7 @@ const navItems = [
 }
 
 .vampire-sidebar__nav {
+  flex-shrink: 0;
   padding: 8px;
   display: flex;
   flex-direction: column;
@@ -93,7 +93,8 @@ const navItems = [
 }
 
 .vampire-sidebar__preview {
-  margin-top: auto;
+  flex: 1;
+  min-height: 0;
   padding: 12px;
   border-top: 1px solid var(--vampire-border-muted);
   overflow-y: auto;
