@@ -225,9 +225,29 @@
 import { ref, reactive, nextTick, computed, watch } from 'vue'
 import AppShell from '../components/layout/AppShell.vue'
 import { useCharacterStore, type Resource } from '../stores/characterStore'
+import { useShellAuth } from '../composables/useShellAuth'
 
 const characterStore = useCharacterStore()
+const { httpClient } = useShellAuth()
 const resources = computed(() => characterStore.resources)
+
+async function persistResources() {
+  try {
+    await httpClient.updateStateFields({
+      fields: {
+        resources: resources.value.map(r => ({
+          id: r.id,
+          name: r.name,
+          description: r.description,
+          kind: r.kind,
+          lost: r.lost
+        }))
+      }
+    })
+  } catch (err) {
+    console.error('Failed to persist resources:', err)
+  }
+}
 
 // ─── 编辑模式开关 ───
 
@@ -312,10 +332,10 @@ function saveEdit(resourceId: string) {
     if (draft.lost) {
       characterStore.loseResource(resourceId)
     } else {
-      // 恢复资源：直接修改 store 中的 lost 字段
       resource.lost = false
     }
   }
+  persistResources()
 }
 
 // ─── 添加新资源 ───
@@ -361,6 +381,7 @@ function handleAdd() {
     lost: false
   }
   cancelAdd()
+  persistResources()
 }
 
 watch(showAddForm, (val) => {
@@ -381,6 +402,7 @@ function confirmDelete() {
   if (deleteTarget.value) {
     characterStore.removeResource(deleteTarget.value.id)
     deleteTarget.value = null
+    persistResources()
   }
 }
 

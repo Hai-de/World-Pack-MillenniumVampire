@@ -90,15 +90,64 @@
             v-for="(experience, index) in memory.experiences"
             :key="experience.id"
             class="vampire-memory-browser__experience"
+            @click.stop
           >
             <span class="vampire-memory-browser__experience-index">{{ index + 1 }}</span>
             <div class="vampire-memory-browser__experience-body">
-              <p class="vampire-memory-browser__experience-content">
-                {{ experience.content }}
-              </p>
-              <span class="vampire-memory-browser__experience-date">
-                {{ experience.createdAt }}
-              </span>
+              <!-- 编辑态 -->
+              <div v-if="editingExperienceId === experience.id" class="vampire-memory-browser__experience-edit">
+                <textarea
+                  ref="experienceEditRef"
+                  v-model="editingExperienceContent"
+                  class="vampire-memory-browser__experience-textarea"
+                  rows="3"
+                  placeholder="编辑经历内容..."
+                  @keydown.escape="cancelEditExperience"
+                />
+                <div class="vampire-memory-browser__experience-edit-actions">
+                  <button
+                    class="vampire-memory-browser__edit-action-btn vampire-memory-browser__edit-action-btn--save"
+                    :disabled="!editingExperienceContent.trim()"
+                    @click="confirmEditExperience(experience.id)"
+                  >
+                    保存
+                  </button>
+                  <button
+                    class="vampire-memory-browser__edit-action-btn vampire-memory-browser__edit-action-btn--cancel"
+                    @click="cancelEditExperience"
+                  >
+                    取消
+                  </button>
+                </div>
+              </div>
+
+              <!-- 只读态 -->
+              <template v-else>
+                <p class="vampire-memory-browser__experience-content">
+                  {{ experience.content }}
+                </p>
+                <div class="vampire-memory-browser__experience-footer">
+                  <span class="vampire-memory-browser__experience-date">
+                    {{ experience.createdAt }}
+                  </span>
+                  <div class="vampire-memory-browser__experience-actions">
+                    <button
+                      class="vampire-memory-browser__exp-btn"
+                      title="编辑"
+                      @click="startEditExperience(experience)"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      class="vampire-memory-browser__exp-btn vampire-memory-browser__exp-btn--delete"
+                      title="删除"
+                      @click="handleDeleteExperience(experience.id)"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
 
@@ -268,6 +317,40 @@ function cancelRename() {
   editingName.value = ''
 }
 
+// ─── 经历编辑 ───
+const editingExperienceId = ref<string | null>(null)
+const editingExperienceContent = ref('')
+const experienceEditRef = ref<HTMLTextAreaElement | null>(null)
+
+function startEditExperience(experience: Experience) {
+  editingExperienceId.value = experience.id
+  editingExperienceContent.value = experience.content
+  nextTick(() => {
+    experienceEditRef.value?.focus()
+  })
+}
+
+async function confirmEditExperience(experienceId: string) {
+  const trimmed = editingExperienceContent.value.trim()
+  if (!trimmed) {
+    cancelEditExperience()
+    return
+  }
+  try {
+    await httpClient.updateExperience({ experienceId, content: trimmed })
+    characterStore.updateExperience(experienceId, trimmed)
+  } catch (err: any) {
+    console.error('[MemoryBrowser] update experience failed:', err)
+  } finally {
+    cancelEditExperience()
+  }
+}
+
+function cancelEditExperience() {
+  editingExperienceId.value = null
+  editingExperienceContent.value = ''
+}
+
 // ─── 确认对话框 ───
 const confirmDialog = ref<{
   visible: boolean
@@ -303,7 +386,7 @@ function clearActionError() {
   actionErrorMemoryId.value = null
 }
 
-// ─── 操作：归档 / 删除 ───
+// ─── 操作：归档 / 删除回忆 ───
 function handleArchive(memory: Memory) {
   clearActionError()
   showConfirm(
@@ -350,6 +433,26 @@ function handleDelete(memory: Memory) {
   )
 }
 
+// ─── 操作：删除经历 ───
+function handleDeleteExperience(experienceId: string) {
+  clearActionError()
+  showConfirm(
+    '确定删除这段经历吗？此操作无法撤销。',
+    async () => {
+      actionLoadingId.value = experienceId
+      try {
+        await httpClient.deleteExperience({ experienceId })
+        characterStore.removeExperience(experienceId)
+      } catch (err: any) {
+        const msg = translateError(err.message) || '删除经历失败，请重试'
+        actionError.value = msg
+      } finally {
+        actionLoadingId.value = null
+      }
+    }
+  )
+}
+
 /** 将后端错误码翻译为用户可读文案 */
 function translateError(code: string): string | null {
   const map: Record<string, string> = {
@@ -358,6 +461,9 @@ function translateError(code: string): string | null {
     memory_not_found: '回忆不存在或已被删除',
     memoryId_required: '缺少回忆 ID',
     memoryId_and_name_required: '缺少必要参数',
+    experienceId_required: '缺少经历 ID',
+    experience_not_found: '经历不存在或已被删除',
+    experienceId_and_content_required: '缺少经历内容',
   }
   return map[code] ?? null
 }
@@ -629,9 +735,119 @@ function translateError(code: string): string | null {
   margin: 0 0 4px 0;
 }
 
+.vampire-memory-browser__experience-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .vampire-memory-browser__experience-date {
   font-size: 0.6875rem;
   color: var(--vampire-text-muted);
+}
+
+.vampire-memory-browser__experience-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity var(--vampire-transition-fast);
+}
+
+.vampire-memory-browser__experience:hover .vampire-memory-browser__experience-actions {
+  opacity: 1;
+}
+
+.vampire-memory-browser__exp-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--vampire-text-muted);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  border-radius: var(--vampire-radius-sm);
+  transition: all var(--vampire-transition-fast);
+  padding: 0;
+}
+
+.vampire-memory-browser__exp-btn:hover {
+  background: var(--vampire-bg-deep);
+  color: var(--vampire-text-secondary);
+}
+
+.vampire-memory-browser__exp-btn--delete:hover {
+  color: var(--vampire-blood);
+  background: rgba(139, 0, 0, 0.08);
+}
+
+.vampire-memory-browser__experience-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vampire-memory-browser__experience-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--vampire-text-primary);
+  background: var(--vampire-bg-deep);
+  border: 1px solid var(--vampire-gold);
+  border-radius: var(--vampire-radius-sm);
+  resize: vertical;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.vampire-memory-browser__experience-textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.1);
+}
+
+.vampire-memory-browser__experience-edit-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.vampire-memory-browser__edit-action-btn {
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--vampire-radius-sm);
+  cursor: pointer;
+  transition: all var(--vampire-transition-fast);
+  border: 1px solid;
+}
+
+.vampire-memory-browser__edit-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.vampire-memory-browser__edit-action-btn--save {
+  color: var(--vampire-gold);
+  border-color: var(--vampire-gold-dim);
+  background: transparent;
+}
+
+.vampire-memory-browser__edit-action-btn--save:hover:not(:disabled) {
+  background: var(--vampire-gold);
+  color: var(--vampire-bg-deep);
+}
+
+.vampire-memory-browser__edit-action-btn--cancel {
+  color: var(--vampire-text-muted);
+  border-color: var(--vampire-border-muted);
+  background: transparent;
+}
+
+.vampire-memory-browser__edit-action-btn--cancel:hover {
+  background: var(--vampire-bg-deep);
 }
 
 /* ─── 操作栏 ─── */

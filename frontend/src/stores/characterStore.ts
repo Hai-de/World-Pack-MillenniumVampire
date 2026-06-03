@@ -208,6 +208,26 @@ export const useCharacterStore = defineStore('character', () => {
     }
   }
 
+  function updateExperience(experienceId: string, content: string) {
+    for (const memory of memories.value) {
+      const experience = memory.experiences.find(e => e.id === experienceId)
+      if (experience) {
+        experience.content = content
+        return
+      }
+    }
+  }
+
+  function removeExperience(experienceId: string) {
+    for (const memory of memories.value) {
+      const idx = memory.experiences.findIndex(e => e.id === experienceId)
+      if (idx !== -1) {
+        memory.experiences.splice(idx, 1)
+        return
+      }
+    }
+  }
+
   function renameMemory(memoryId: string, newName: string) {
     const memory = memories.value.find(m => m.id === memoryId)
     if (memory) {
@@ -274,46 +294,22 @@ export const useCharacterStore = defineStore('character', () => {
     }
 
     if (Array.isArray(state.skills)) {
-      skills.value = (state.skills as Array<Record<string, unknown>>)
-        .filter((s) => {
-          // 过滤旧格式导致的 [object Object] 损坏数据
-          const name = typeof s === 'string' ? s : (s.name as string)
-          return name && name !== '[object Object]'
-        })
-        .map((s, index) => {
-          // 兼容旧格式（纯字符串）和新格式（对象）
-          if (typeof s === 'string') {
-            return { id: `skill_backend_${index}`, name: s, description: '', tested: false }
-          }
-          return {
-            id: (s.id as string) ?? `skill_backend_${index}`,
-            name: (s.name as string) ?? '',
-            description: (s.description as string) ?? '',
-            tested: (s.tested as boolean) ?? false,
-            ...(s.linkedMemoryId !== undefined ? { linkedMemoryId: s.linkedMemoryId as string } : {})
-          }
-        })
+      skills.value = (state.skills as Array<Record<string, unknown>>).map((s, index) => ({
+        id: (s.id as string) ?? `skill_backend_${index}`,
+        name: (s.name as string) ?? '',
+        description: (s.description as string) ?? '',
+        tested: (s.tested as boolean) ?? false,
+        ...(s.linkedMemoryId !== undefined ? { linkedMemoryId: s.linkedMemoryId as string } : {})
+      }))
     }
     if (Array.isArray(state.resources)) {
-      resources.value = (state.resources as Array<Record<string, unknown>>)
-        .filter((r) => {
-          // 过滤旧格式导致的 [object Object] 损坏数据
-          const name = typeof r === 'string' ? r : (r.name as string)
-          return name && name !== '[object Object]'
-        })
-        .map((r, index) => {
-          // 兼容旧格式（纯字符串）和新格式（对象）
-          if (typeof r === 'string') {
-            return { id: `res_backend_${index}`, name: r, description: '', lost: false, kind: 'generic' as const }
-          }
-          return {
-            id: (r.id as string) ?? `res_backend_${index}`,
-            name: (r.name as string) ?? '',
-            description: (r.description as string) ?? '',
-            lost: (r.lost as boolean) ?? false,
-            kind: (r.kind as 'generic' | 'diary') ?? 'generic'
-          }
-        })
+      resources.value = (state.resources as Array<Record<string, unknown>>).map((r, index) => ({
+        id: (r.id as string) ?? `res_backend_${index}`,
+        name: (r.name as string) ?? '',
+        description: (r.description as string) ?? '',
+        lost: (r.lost as boolean) ?? false,
+        kind: (r.kind as 'generic' | 'diary') ?? 'generic'
+      }))
     }
     if (Array.isArray(state.marks)) {
       marks.value = (state.marks as Array<Record<string, unknown>>).map((m, index) => ({
@@ -425,6 +421,8 @@ export const useCharacterStore = defineStore('character', () => {
     removeMark,
     addMemory,
     addExperience,
+    updateExperience,
+    removeExperience,
     renameMemory,
     archiveMemory,
     removeMemory,

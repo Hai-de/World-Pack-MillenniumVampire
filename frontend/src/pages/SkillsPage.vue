@@ -181,9 +181,28 @@
 import { ref, reactive, nextTick, computed, watch } from 'vue'
 import AppShell from '../components/layout/AppShell.vue'
 import { useCharacterStore, type Skill } from '../stores/characterStore'
+import { useShellAuth } from '../composables/useShellAuth'
 
 const characterStore = useCharacterStore()
+const { httpClient } = useShellAuth()
 const skills = computed(() => characterStore.skills)
+
+async function persistSkills() {
+  try {
+    await httpClient.updateStateFields({
+      fields: {
+        skills: skills.value.map(s => ({
+          id: s.id,
+          name: s.name,
+          description: s.description,
+          tested: s.tested
+        }))
+      }
+    })
+  } catch (err) {
+    console.error('Failed to persist skills:', err)
+  }
+}
 
 // ─── 编辑模式开关 ───
 
@@ -251,6 +270,7 @@ function saveEdit(skillId: string) {
   const name = draft.name.trim()
   if (!name) return
   characterStore.updateSkill(skillId, { name, description: draft.description })
+  persistSkills()
 }
 
 // ─── 添加新技艺 ───
@@ -284,6 +304,7 @@ function handleAdd() {
   characterStore.addSkill(skill)
   editDrafts[skill.id] = { name: skill.name, description: skill.description }
   cancelAdd()
+  persistSkills()
 }
 
 watch(showAddForm, (val) => {
@@ -304,6 +325,7 @@ function confirmDelete() {
   if (deleteTarget.value) {
     characterStore.removeSkill(deleteTarget.value.id)
     deleteTarget.value = null
+    persistSkills()
   }
 }
 

@@ -12,6 +12,7 @@
 // ── 类型定义 ──
 
 interface VampireSkill {
+  id: string;
   name: string;
   description: string;
   tested: boolean;
@@ -19,6 +20,7 @@ interface VampireSkill {
 }
 
 interface VampireResource {
+  id: string;
   name: string;
   description: string;
   lost: boolean;
@@ -26,6 +28,7 @@ interface VampireResource {
 }
 
 interface VampireMark {
+  id: string;
   name: string;
   description: string;
 }
@@ -63,12 +66,6 @@ async function loadVampireState(host: any): Promise<VampireState> {
   const record = records.find((r: any) => r.id === VAMPIRE_STATE_ID);
   if (record && isRecord(record.state_json)) {
     const raw = record.state_json as Record<string, unknown>;
-    // 向后兼容：迁移旧 state 格式（prompt_pool_position → prompt_cursor + prompt_order）
-    if (raw.prompt_cursor === undefined && raw.prompt_order === undefined) {
-      raw.prompt_cursor = (raw.prompt_pool_position as number) ?? 0;
-      raw.prompt_order = [];
-      raw.dice_roll_count = (raw.consumed_prompt_count as number) ?? 0;
-    }
     return raw as unknown as VampireState;
   }
   return defaultVampireState();
@@ -606,6 +603,7 @@ async function invokeCharacterCreation(payload: unknown): Promise<Record<string,
   state.skills = rawSkills
     .filter((item: unknown) => isRecord(item) && typeof item.name === 'string' && item.name.trim().length > 0)
     .map((item: Record<string, unknown>) => ({
+      id: `skill_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       name: (item.name as string).trim(),
       description: typeof item.description === 'string' ? item.description.trim() : '',
       tested: false
@@ -616,6 +614,7 @@ async function invokeCharacterCreation(payload: unknown): Promise<Record<string,
   state.resources = rawResources
     .filter((item: unknown) => isRecord(item) && typeof item.name === 'string' && item.name.trim().length > 0)
     .map((item: Record<string, unknown>) => ({
+      id: `res_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       name: (item.name as string).trim(),
       description: typeof item.description === 'string' ? item.description.trim() : '',
       lost: false,
@@ -623,13 +622,13 @@ async function invokeCharacterCreation(payload: unknown): Promise<Record<string,
     }));
 
   // 4. 印记
-  const markText = (fd.mark as string)?.trim();
-  if (markText) {
-    state.marks = markText
-      .split(/[\n,、]/)
-      .map((s: string) => s.trim())
-      .filter((s: string) => s.length > 0)
-      .map((name: string) => ({ name, description: '' }));
+  const markName = typeof fd.markName === 'string' ? fd.markName.trim() : '';
+  if (markName) {
+    state.marks = [{
+      id: `mark_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      name: markName,
+      description: typeof fd.markDescription === 'string' ? fd.markDescription.trim() : ''
+    }];
   }
 
   // 5. 凡人角色
@@ -723,6 +722,7 @@ async function invokeCharacterCreation(payload: unknown): Promise<Record<string,
 
   // 8. 添加日记为特殊资源
   state.resources.push({
+    id: 'res_diary',
     name: '吸血鬼日记',
     description: '记录你漫长生命的日记本',
     lost: false,
@@ -861,6 +861,76 @@ async function invokeRenameMemory(payload: unknown): Promise<Record<string, unkn
   };
 }
 
+// ── invoke.update_experience ──
+
+async function invokeUpdateExperience(payload: unknown): Promise<Record<string, unknown>> {
+  const host = (globalThis as any).__vampire_host;
+  if (!host) return { success: false, error: 'host_not_available' };
+
+  const input = payload as { experienceId?: string; content?: string };
+  if (!input.experienceId || !input.content?.trim()) {
+    return { success: false, error: 'experienceId_and_content_required' };
+  }
+
+  // 查找目标经历
+  const allExperiences = await host.listPackCollectionRecords('vampire_experiences');
+  const experience = allExperiences.find((e: any) => e.id === input.experienceId);
+  if (!experience) {
+    return { success: false, error: 'experience_not_found' };
+  }
+
+  // 更新内容
+  await host.upsertPackCollectionRecord('vampire_experiences', {
+    ...experience,
+    content: input.content.trim()
+  });
+
+  return {
+    success: true,
+    data: { experienceId: input.experienceId, content: input.content.trim() }
+  };
+}
+
+// ── invoke.delete_experience ──
+
+async function invokeDeleteExperience(payload: unknown): Promise<Record<string, unknown>> {
+  const host = (globalThis as any).__vampire_host;
+  if (!host) return { success: false, error: 'host_not_available' };
+
+  const input = payload as { experienceId?: string };
+  if (!input.experienceId) {
+    return { success: false, error: 'experienceId_required' };
+  }
+
+  // 查找目标经历
+  const allExperiences = await host.listPackCollectionRecords('vampire_experiences');
+  const experience = allExperiences.find((e: any) => e.id === input.experienceId);
+  if (!experience) {
+    return { success: false, error: 'experience_not_found' };
+  }
+
+  // 更新所属回忆的 experience_count
+  const memoryId = experience.memory_id;
+  if (memoryId) {
+    const allMemories = await host.listPackCollectionRecords('vampire_memories');
+    const memory = allMemories.find((m: any) => m.id === memoryId);
+    if (memory) {
+      await host.upsertPackCollectionRecord('vampire_memories', {
+        ...memory,
+        experience_count: Math.max(0, (memory.experience_count ?? 1) - 1)
+      });
+    }
+  }
+
+  // 删除经历
+  await host.deletePackCollectionRecord('vampire_experiences', input.experienceId);
+
+  return {
+    success: true,
+    data: { experienceId: input.experienceId, deleted: true }
+  };
+}
+
 // ── invoke.reset_game ──
 
 async function invokeResetGame(_payload: unknown): Promise<Record<string, unknown>> {
@@ -874,6 +944,44 @@ async function invokeResetGame(_payload: unknown): Promise<Record<string, unknow
   return {
     success: true,
     data: { game_phase: 'uninitialized' }
+  };
+}
+
+// ── invoke.update_state_fields ──
+
+const ALLOWED_STATE_FIELDS = new Set(['skills', 'resources', 'marks']);
+
+async function invokeUpdateStateFields(payload: unknown): Promise<Record<string, unknown>> {
+  const host = (globalThis as any).__vampire_host;
+  if (!host) return { success: false, error: 'host_not_available' };
+
+  const input = payload as Record<string, unknown>;
+  if (!input || typeof input !== 'object') {
+    return { success: false, error: 'invalid_payload' };
+  }
+
+  const fields = input.fields as Record<string, unknown> | undefined;
+  if (!fields || typeof fields !== 'object') {
+    return { success: false, error: 'fields_required' };
+  }
+
+  // 只允许白名单内的字段
+  const keysToPatch = Object.keys(fields).filter(k => ALLOWED_STATE_FIELDS.has(k));
+  if (keysToPatch.length === 0) {
+    return { success: false, error: 'no_valid_fields' };
+  }
+
+  const state = await loadVampireState(host);
+
+  for (const key of keysToPatch) {
+    (state as any)[key] = fields[key];
+  }
+
+  await saveVampireState(host, state);
+
+  return {
+    success: true,
+    data: { updated_fields: keysToPatch }
   };
 }
 
@@ -1390,6 +1498,9 @@ export function activate(host: any): void {
   host.registerHandler('invoke.archive_memory', invokeArchiveMemory);
   host.registerHandler('invoke.delete_memory', invokeDeleteMemory);
   host.registerHandler('invoke.rename_memory', invokeRenameMemory);
+  host.registerHandler('invoke.update_experience', invokeUpdateExperience);
+  host.registerHandler('invoke.delete_experience', invokeDeleteExperience);
+  host.registerHandler('invoke.update_state_fields', invokeUpdateStateFields);
 
   // ── BT callHandler ──
   host.registerHandler('vampire:process_turn', processTurn);

@@ -168,9 +168,27 @@
 import { ref, reactive, nextTick, computed, watch } from 'vue'
 import AppShell from '../components/layout/AppShell.vue'
 import { useCharacterStore, type Mark } from '../stores/characterStore'
+import { useShellAuth } from '../composables/useShellAuth'
 
 const characterStore = useCharacterStore()
+const { httpClient } = useShellAuth()
 const marks = computed(() => characterStore.marks)
+
+async function persistMarks() {
+  try {
+    await httpClient.updateStateFields({
+      fields: {
+        marks: marks.value.map(m => ({
+          id: m.id,
+          name: m.name,
+          description: m.description
+        }))
+      }
+    })
+  } catch (err) {
+    console.error('Failed to persist marks:', err)
+  }
+}
 
 // ─── 编辑模式开关 ───
 
@@ -239,6 +257,7 @@ function saveEdit(markId: string) {
   const name = draft.name.trim()
   if (!name) return
   characterStore.updateMark(markId, { name, description: draft.description })
+  persistMarks()
 }
 
 // ─── 添加新印记 ───
@@ -272,6 +291,7 @@ function handleAdd() {
   // 同步草稿
   editDrafts[mark.id] = { name: mark.name, description: mark.description }
   cancelAdd()
+  persistMarks()
 }
 
 // showAddForm 变为 true 时聚焦名称输入框
@@ -293,6 +313,7 @@ function confirmDelete() {
   if (deleteTarget.value) {
     characterStore.removeMark(deleteTarget.value.id)
     deleteTarget.value = null
+    persistMarks()
   }
 }
 

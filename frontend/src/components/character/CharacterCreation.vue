@@ -137,18 +137,18 @@
         </div>
       </div>
 
-      <!-- ─── 名字 + 介绍 ─── -->
+      <!-- ─── 名字 + 描述（通用） ─── -->
       <div v-else-if="steps[currentStep].inputType === 'name-description'" class="vampire-character-creation__input-area">
         <label class="vampire-character-creation__field-label">名字</label>
         <input
-          v-model="formData.immortalName"
+          v-model="formData[steps[currentStep].nameField || 'immortalName']"
           type="text"
           class="vampire-character-creation__input"
           :placeholder="steps[currentStep].namePlaceholder"
         />
-        <label class="vampire-character-creation__field-label">介绍</label>
+        <label class="vampire-character-creation__field-label">描述</label>
         <textarea
-          v-model="formData.immortalDescription"
+          v-model="formData[steps[currentStep].descField || 'immortalDescription']"
           class="vampire-character-creation__textarea"
           :placeholder="steps[currentStep].descPlaceholder"
           rows="4"
@@ -244,6 +244,7 @@ interface CreationStep {
   example?: string
   // name-appearance / name-description
   nameField?: string
+  descField?: string
   namePlaceholder?: string
   descPlaceholder?: string
   // triple-pairs
@@ -316,10 +317,14 @@ const steps: CreationStep[] = [
   },
   {
     title: '创建一个印记',
-    prompt: '创建一个代表吸血鬼非人特征的印记。',
-    inputType: 'textarea',
-    field: 'mark',
-    placeholder: '例：苍白的皮肤、永恒的饥饿、不会眨眼'
+    prompt: '创建代表吸血鬼非人特征的印记。',
+    inputType: 'name-description',
+    field: 'markName',
+    nameField: 'markName',
+    descField: 'markDescription',
+    namePlaceholder: '印记名称',
+    descPlaceholder: '描述这个印记',
+    example: '永恒的饥饿 — 无论饮下多少鲜血，喉咙深处始终燃烧着无法被扑灭的干渴'
   },
   {
     title: '变为吸血鬼的经历',
@@ -362,7 +367,8 @@ const formData = ref<Record<string, unknown>>({
   experiences: ['', '', ''],
   immortalName: '',
   immortalDescription: '',
-  mark: '',
+  markName: '',
+  markDescription: '',
   turningExperience: ''
 })
 
@@ -408,7 +414,7 @@ const isNextDisabled = computed(() => {
         (item) => item.name.trim() || item.description.trim()
       )
     case 'name-description':
-      return !(formData.value.immortalName as string)?.trim()
+      return !(formData.value[steps[currentStep.value].nameField || 'immortalName'] as string)?.trim()
     default:
       return true
   }
@@ -452,8 +458,8 @@ function skipStep() {
       break
     }
     case 'name-description':
-      formData.value.immortalName = ''
-      formData.value.immortalDescription = ''
+      formData.value[step.nameField || 'immortalName'] = ''
+      formData.value[step.descField || 'immortalDescription'] = ''
       break
   }
   nextStep()
@@ -538,7 +544,8 @@ function clearDraft() {
     experiences: ['', '', ''],
     immortalName: '',
     immortalDescription: '',
-    mark: '',
+    markName: '',
+    markDescription: '',
     turningExperience: ''
   }
 }
@@ -579,7 +586,8 @@ function fillSeedData() {
     immortalName: '弗拉德·德拉库尔',
     immortalDescription:
       '一位来自东欧的古老吸血鬼，外表约四十岁，举止优雅但眼神中藏着千年的倦怠。他将埃德蒙转化为吸血鬼，成为了埃德蒙的导师——也是一个永远无法摆脱的阴影。',
-    mark: '永恒的饥饿——无论饮下多少鲜血，喉咙深处始终燃烧着无法被扑灭的干渴。这种饥饿永远不会杀死他，但永远不会让他安宁。',
+    markName: '永恒的饥饿',
+    markDescription: '无论饮下多少鲜血，喉咙深处始终燃烧着无法被扑灭的干渴。这种饥饿永远不会杀死他，但永远不会让他安宁。',
     turningExperience:
       '1353年，一个暴风雨肆虐的夜晚，弗拉德·德拉库尔如约而至。在埃德蒙的地下实验室里，弗拉德割开自己的手腕，让埃德蒙饮下那冰冷而灼热的血液。随后他将埃德蒙勒死，任其在死亡的幻象中挣扎三日。当埃德蒙在第四天午夜从自己的棺材中爬出时，他已经不再属于活人的世界。'
   }

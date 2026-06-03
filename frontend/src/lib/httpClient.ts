@@ -119,6 +119,25 @@ export class VampireHttpClient {
     return this.request('invoke.rename_memory', payload)
   }
 
+  async updateExperience(payload: {
+    experienceId: string
+    content: string
+  }): Promise<{ experienceId: string; content: string }> {
+    return this.request('invoke.update_experience', payload)
+  }
+
+  async deleteExperience(payload: {
+    experienceId: string
+  }): Promise<{ experienceId: string; deleted: boolean }> {
+    return this.request('invoke.delete_experience', payload)
+  }
+
+  async updateStateFields(payload: {
+    fields: Record<string, unknown>
+  }): Promise<{ updated_fields: string[] }> {
+    return this.request('invoke.update_state_fields', payload)
+  }
+
   async resetGame(): Promise<{ intent_id: string }> {
     return this.request('invoke.reset_game')
   }
