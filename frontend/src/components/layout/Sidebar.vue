@@ -29,6 +29,9 @@ const navItems = [
   { route: '/', icon: '🎲', label: '游戏' },
   { route: '/diary', icon: '📖', label: '日记' },
   { route: '/memories', icon: '🧠', label: '回忆' },
+  { route: '/skills', icon: '⚔️', label: '技艺' },
+  { route: '/resources', icon: '📦', label: '资源' },
+  { route: '/marks', icon: '👁️', label: '印记' },
   { route: '/chronicle', icon: '📜', label: '编年史' },
   { route: '/characters', icon: '👥', label: '角色' },
   { route: '/settings', icon: '⚙️', label: '设置' }

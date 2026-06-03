@@ -81,7 +81,7 @@
       <!-- ─── 三组名字+描述 ─── -->
       <div v-else-if="steps[currentStep].inputType === 'triple-pairs'" class="vampire-character-creation__input-area">
         <div
-          v-for="(_, idx) in formData.mortalCharacters"
+          v-for="(_, idx) in (formData[steps[currentStep].field] as Array<{ name: string; description: string }>)"
           :key="idx"
           class="vampire-character-creation__pair-group"
         >
@@ -89,13 +89,13 @@
             {{ steps[currentStep].nameLabel }} {{ idx + 1 }}
           </label>
           <input
-            v-model="formData.mortalCharacters[idx].name"
+            v-model="(formData[steps[currentStep].field] as Array<{ name: string; description: string }>)[idx].name"
             type="text"
             class="vampire-character-creation__input"
             :placeholder="steps[currentStep].namePlaceholder"
           />
           <input
-            v-model="formData.mortalCharacters[idx].description"
+            v-model="(formData[steps[currentStep].field] as Array<{ name: string; description: string }>)[idx].description"
             type="text"
             class="vampire-character-creation__input"
             :placeholder="steps[currentStep].descPlaceholder"
@@ -279,16 +279,24 @@ const steps: CreationStep[] = [
   {
     title: '创建三个技艺',
     prompt: '创建三个符合角色的技艺（能力和特质）。',
-    inputType: 'triple-inputs',
+    inputType: 'triple-pairs',
     field: 'skills',
-    placeholder: '例：剑术、伪装、古老语言'
+    nameLabel: '技艺',
+    descLabel: '描述',
+    namePlaceholder: '技艺名称',
+    descPlaceholder: '简短描述这个技艺',
+    example: '炼金术与草药知识 — 掌握早期化学和药理学，能够调配治疗药剂和有毒的混合物\n古典拉丁语与希腊语 — 流利阅读古代文献，能够解读失传的咒语和炼金术手稿\n长剑格斗 — 在成为医生之前曾在佣兵团服役，精通文艺复兴时期的剑术'
   },
   {
     title: '创建三个资源',
     prompt: '创建三个符合角色的资源（资产、组织或珍视之物）。',
-    inputType: 'triple-inputs',
+    inputType: 'triple-pairs',
     field: 'resources',
-    placeholder: '例：黑曜石小刀、古老的日记本、一个忠诚的仆人'
+    nameLabel: '资源',
+    descLabel: '描述',
+    namePlaceholder: '资源名称',
+    descPlaceholder: '简短描述这个资源',
+    example: '一本记载禁术的古老手稿 — 包含了从活人身上汲取生命力的禁忌仪式\n家族遗留的佛罗伦萨郊外庄园 — 庇护所和藏身之处，地窖中藏有秘密实验室\n一名世代侍奉格雷家族的忠诚仆人 — 马丁，知道主人的真实身份，从不对外透露'
   },
   {
     title: '创建三段经历',
@@ -341,8 +349,16 @@ const formData = ref<Record<string, unknown>>({
     { name: '', description: '' },
     { name: '', description: '' }
   ] as MortalCharacter[],
-  skills: ['', '', ''],
-  resources: ['', '', ''],
+  skills: [
+    { name: '', description: '' },
+    { name: '', description: '' },
+    { name: '', description: '' }
+  ],
+  resources: [
+    { name: '', description: '' },
+    { name: '', description: '' },
+    { name: '', description: '' }
+  ],
   experiences: ['', '', ''],
   immortalName: '',
   immortalDescription: '',
@@ -388,8 +404,8 @@ const isNextDisabled = computed(() => {
     case 'triple-textareas':
       return !(formData.value[step.field] as string[]).some((s: string) => s.trim())
     case 'triple-pairs':
-      return !(formData.value.mortalCharacters as MortalCharacter[]).some(
-        (c: MortalCharacter) => c.name.trim() || c.description.trim()
+      return !(formData.value[step.field] as Array<{ name: string; description: string }>).some(
+        (item) => item.name.trim() || item.description.trim()
       )
     case 'name-description':
       return !(formData.value.immortalName as string)?.trim()
@@ -426,13 +442,15 @@ function skipStep() {
     case 'triple-textareas':
       formData.value[step.field] = ['', '', '']
       break
-    case 'triple-pairs':
-      formData.value.mortalCharacters = [
+    case 'triple-pairs': {
+      const emptyPairs = [
         { name: '', description: '' },
         { name: '', description: '' },
         { name: '', description: '' }
       ]
+      formData.value[step.field] = emptyPairs
       break
+    }
     case 'name-description':
       formData.value.immortalName = ''
       formData.value.immortalDescription = ''
@@ -507,8 +525,16 @@ function clearDraft() {
       { name: '', description: '' },
       { name: '', description: '' }
     ],
-    skills: ['', '', ''],
-    resources: ['', '', ''],
+    skills: [
+      { name: '', description: '' },
+      { name: '', description: '' },
+      { name: '', description: '' }
+    ],
+    resources: [
+      { name: '', description: '' },
+      { name: '', description: '' },
+      { name: '', description: '' }
+    ],
     experiences: ['', '', ''],
     immortalName: '',
     immortalDescription: '',
@@ -535,8 +561,16 @@ function fillSeedData() {
       { name: '马可·韦斯普奇', description: '童年挚友，后来成为城邦议员。在埃德蒙"死去"后再未提起他的名字' },
       { name: '老安东尼奥', description: '教会埃德蒙医术的导师，一位沉默寡言但洞察一切的老人' }
     ],
-    skills: ['炼金术与草药知识', '古典拉丁语与希腊语', '长剑格斗'],
-    resources: ['一本记载禁术的古老手稿', '家族遗留的佛罗伦萨郊外庄园', '一名世代侍奉格雷家族的忠诚仆人'],
+    skills: [
+      { name: '炼金术与草药知识', description: '掌握早期化学和药理学，能够调配治疗药剂和有毒的混合物' },
+      { name: '古典拉丁语与希腊语', description: '流利阅读古代文献，能够解读失传的咒语和炼金术手稿' },
+      { name: '长剑格斗', description: '在成为医生之前曾在佣兵团服役，精通文艺复兴时期的剑术' }
+    ],
+    resources: [
+      { name: '一本记载禁术的古老手稿', description: '包含了从活人身上汲取生命力的禁忌仪式' },
+      { name: '家族遗留的佛罗伦萨郊外庄园', description: '庇护所和藏身之处，地窖中藏有秘密实验室' },
+      { name: '一名世代侍奉格雷家族的忠诚仆人', description: '马丁，知道主人的真实身份，从不对外透露' }
+    ],
     experiences: [
       '1348年，佛罗伦萨爆发黑死病。埃德蒙日夜救治病人，目睹半座城市的人口在三个月内消失。他在日记中写道："上帝已抛弃了这座城。"',
       '1351年，在威尼斯港口的酒馆里，一位水手醉醺醺地讲述了一个关于"食人者"的传说——据说在东方的深山里住着不死的生物，以人血为生。埃德蒙记下了每一个细节。',
@@ -552,6 +586,9 @@ function fillSeedData() {
 
   // 清除草稿以便种子数据覆盖旧的 localStorage 缓存
   localStorage.removeItem(`vampire_cc_draft_${shellContext.pack_id}`)
+
+  // 跳到最后一步（变为吸血鬼的经历）
+  currentStep.value = totalSteps - 1
 }
 
 // ─── 提交 ───

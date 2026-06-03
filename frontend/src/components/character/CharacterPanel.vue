@@ -12,13 +12,25 @@
           回忆 {{ activeMemories.length }}/5
         </h4>
       </button>
+      
       <div v-if="!isCollapsed('memories')" class="vampire-character-panel__section-body">
-        <div class="vampire-character-panel__progress">
+        <div v-if="activeMemories.length === 0" class="vampire-character-panel__empty">暂无回忆</div>
+        <div v-else class="vampire-character-panel__list">
           <div
-            class="vampire-character-panel__progress-bar"
-            :style="{ width: `${Math.min((activeMemories.length / 5) * 100, 100)}%` }"
-          />
+            v-for="memory in activeMemories"
+            :key="memory.id"
+            class="vampire-character-panel__item"
+          >
+            <span class="vampire-character-panel__name">
+              {{ memory.name }}
+              <span class="vampire-character-panel__meta">
+                {{ memory.experiences.length }}段
+              </span>
+            </span>
+            <span v-if="memory.archivedToDiary" class="vampire-character-panel__archive-badge">归档</span>
+          </div>
         </div>
+        
       </div>
     </div>
 
@@ -202,6 +214,21 @@ function toggleSection(key: SectionKey) {
 
 .vampire-character-panel__death {
   font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.vampire-character-panel__meta {
+  font-size: 0.625rem;
+  color: var(--vampire-text-muted);
+  margin-left: 2px;
+}
+
+.vampire-character-panel__archive-badge {
+  font-size: 0.5625rem;
+  padding: 1px 5px;
+  background: var(--vampire-ink-dim);
+  color: var(--vampire-text-muted);
+  border-radius: 999px;
   flex-shrink: 0;
 }
 

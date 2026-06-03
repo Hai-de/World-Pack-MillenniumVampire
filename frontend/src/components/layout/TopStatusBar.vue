@@ -22,13 +22,15 @@
         {{ connectionStatus === 'reconnecting' ? '重新连接中…' : '连接已断开' }}
       </span>
 
-      <!-- 游戏模式切换 -->
+      <!-- 游戏模式切换（Agent 模式尚未开发） -->
       <button
         type="button"
-        class="vampire-topbar__mode-toggle"
-        @click="toggleMode"
+        class="vampire-topbar__mode-toggle vampire-topbar__mode-toggle--disabled"
+        disabled
+        title="Agent 模式尚未开发完成"
       >
-        {{ gameStore.vampireMode === 'player' ? '🎮 玩家' : '🤖 Agent' }}
+        🎮 玩家
+        <span class="vampire-topbar__mode-coming-soon">Agent 开发中</span>
       </button>
     </div>
   </header>
@@ -52,12 +54,6 @@ const diceResultClass = computed(() => {
     ? 'vampire-topbar__dice-negative'
     : 'vampire-topbar__dice-neutral'
 })
-
-function toggleMode() {
-  gameStore.setVampireMode(
-    gameStore.vampireMode === 'player' ? 'agent' : 'player'
-  )
-}
 </script>
 
 <style scoped>
@@ -178,6 +174,19 @@ function toggleMode() {
 .vampire-topbar__mode-toggle:hover {
   background-color: var(--vampire-ink-dim);
   color: var(--vampire-text-primary);
+}
+
+.vampire-topbar__mode-toggle--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vampire-topbar__mode-coming-soon {
+  font-size: 0.625rem;
+  color: var(--vampire-text-muted);
 }
 
 /* ─── 窄屏适配 ─── */

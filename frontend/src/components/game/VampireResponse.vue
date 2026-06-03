@@ -13,11 +13,12 @@
         </button>
         <button
           type="button"
-          class="vampire-response__mode-btn"
-          :class="{ 'vampire-response__mode-btn--active': mode === 'agent' }"
-          @click="mode = 'agent'"
+          class="vampire-response__mode-btn vampire-response__mode-btn--disabled"
+          disabled
+          title="Agent 生成模式尚未开发完成"
         >
           🤖 Agent 生成
+          <span class="vampire-response__mode-coming-soon">开发中</span>
         </button>
       </div>
     </div>
@@ -224,6 +225,19 @@ onUnmounted(() => {
   background-color: var(--vampire-blood-dim);
   color: var(--vampire-text-primary);
   border-color: var(--vampire-blood-dim);
+}
+
+.vampire-response__mode-btn--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vampire-response__mode-coming-soon {
+  font-size: 0.5625rem;
+  color: var(--vampire-text-muted);
 }
 
 .vampire-response__editor-container {

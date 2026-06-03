@@ -13,6 +13,7 @@
 
 interface VampireSkill {
   name: string;
+  description: string;
   tested: boolean;
   linked_memory_id?: string;
 }
@@ -601,15 +602,25 @@ async function invokeCharacterCreation(payload: unknown): Promise<Record<string,
   }
 
   // 2. 技艺
-  state.skills = filterEmpty(fd.skills).map((name: string) => ({ name, tested: false }));
+  const rawSkills = Array.isArray(fd.skills) ? fd.skills : []
+  state.skills = rawSkills
+    .filter((item: unknown) => isRecord(item) && typeof item.name === 'string' && item.name.trim().length > 0)
+    .map((item: Record<string, unknown>) => ({
+      name: (item.name as string).trim(),
+      description: typeof item.description === 'string' ? item.description.trim() : '',
+      tested: false
+    }));
 
   // 3. 资源
-  state.resources = filterEmpty(fd.resources).map((name: string) => ({
-    name,
-    description: '',
-    lost: false,
-    kind: 'generic' as const
-  }));
+  const rawResources = Array.isArray(fd.resources) ? fd.resources : []
+  state.resources = rawResources
+    .filter((item: unknown) => isRecord(item) && typeof item.name === 'string' && item.name.trim().length > 0)
+    .map((item: Record<string, unknown>) => ({
+      name: (item.name as string).trim(),
+      description: typeof item.description === 'string' ? item.description.trim() : '',
+      lost: false,
+      kind: 'generic' as const
+    }));
 
   // 4. 印记
   const markText = (fd.mark as string)?.trim();

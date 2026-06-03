@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 export interface Skill {
   id: string
   name: string
+  description: string
   tested: boolean
   linkedMemoryId?: string
 }
@@ -135,6 +136,14 @@ export const useCharacterStore = defineStore('character', () => {
     skills.value = skills.value.filter(s => s.id !== skillId)
   }
 
+  function updateSkill(skillId: string, patch: Partial<Pick<Skill, 'name' | 'description'>>) {
+    const skill = skills.value.find(s => s.id === skillId)
+    if (skill) {
+      if (patch.name !== undefined) skill.name = patch.name
+      if (patch.description !== undefined) skill.description = patch.description
+    }
+  }
+
   function addResource(resource: Resource) {
     resources.value.push(resource)
   }
@@ -159,8 +168,29 @@ export const useCharacterStore = defineStore('character', () => {
     if (resource) resource.lost = true
   }
 
+  function updateResource(resourceId: string, patch: Partial<Pick<Resource, 'name' | 'description' | 'kind'>>) {
+    const resource = resources.value.find(r => r.id === resourceId)
+    if (resource) {
+      if (patch.name !== undefined) resource.name = patch.name
+      if (patch.description !== undefined) resource.description = patch.description
+      if (patch.kind !== undefined) resource.kind = patch.kind
+    }
+  }
+
+  function removeResource(resourceId: string) {
+    resources.value = resources.value.filter(r => r.id !== resourceId)
+  }
+
   function addMark(mark: Mark) {
     marks.value.push(mark)
+  }
+
+  function updateMark(markId: string, patch: Partial<Pick<Mark, 'name' | 'description'>>) {
+    const mark = marks.value.find(m => m.id === markId)
+    if (mark) {
+      if (patch.name !== undefined) mark.name = patch.name
+      if (patch.description !== undefined) mark.description = patch.description
+    }
   }
 
   function removeMark(markId: string) {
@@ -244,13 +274,53 @@ export const useCharacterStore = defineStore('character', () => {
     }
 
     if (Array.isArray(state.skills)) {
-      skills.value = state.skills as Skill[]
+      skills.value = (state.skills as Array<Record<string, unknown>>)
+        .filter((s) => {
+          // 过滤旧格式导致的 [object Object] 损坏数据
+          const name = typeof s === 'string' ? s : (s.name as string)
+          return name && name !== '[object Object]'
+        })
+        .map((s, index) => {
+          // 兼容旧格式（纯字符串）和新格式（对象）
+          if (typeof s === 'string') {
+            return { id: `skill_backend_${index}`, name: s, description: '', tested: false }
+          }
+          return {
+            id: (s.id as string) ?? `skill_backend_${index}`,
+            name: (s.name as string) ?? '',
+            description: (s.description as string) ?? '',
+            tested: (s.tested as boolean) ?? false,
+            ...(s.linkedMemoryId !== undefined ? { linkedMemoryId: s.linkedMemoryId as string } : {})
+          }
+        })
     }
     if (Array.isArray(state.resources)) {
-      resources.value = state.resources as Resource[]
+      resources.value = (state.resources as Array<Record<string, unknown>>)
+        .filter((r) => {
+          // 过滤旧格式导致的 [object Object] 损坏数据
+          const name = typeof r === 'string' ? r : (r.name as string)
+          return name && name !== '[object Object]'
+        })
+        .map((r, index) => {
+          // 兼容旧格式（纯字符串）和新格式（对象）
+          if (typeof r === 'string') {
+            return { id: `res_backend_${index}`, name: r, description: '', lost: false, kind: 'generic' as const }
+          }
+          return {
+            id: (r.id as string) ?? `res_backend_${index}`,
+            name: (r.name as string) ?? '',
+            description: (r.description as string) ?? '',
+            lost: (r.lost as boolean) ?? false,
+            kind: (r.kind as 'generic' | 'diary') ?? 'generic'
+          }
+        })
     }
     if (Array.isArray(state.marks)) {
-      marks.value = state.marks as Mark[]
+      marks.value = (state.marks as Array<Record<string, unknown>>).map((m, index) => ({
+        id: (m.id as string) ?? `mark_backend_${index}`,
+        name: (m.name as string) ?? '',
+        description: (m.description as string) ?? ''
+      }))
     }
     if (Array.isArray(state.memories)) {
       memories.value = (state.memories as Array<Record<string, unknown>>).map((m) => ({
@@ -344,10 +414,14 @@ export const useCharacterStore = defineStore('character', () => {
     addSkill,
     testSkill,
     removeSkill,
+    updateSkill,
     addResource,
     createDiary,
     loseResource,
+    updateResource,
+    removeResource,
     addMark,
+    updateMark,
     removeMark,
     addMemory,
     addExperience,
