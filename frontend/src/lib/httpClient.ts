@@ -90,8 +90,21 @@ export class VampireHttpClient {
     promptId: string
     response: string
     mode: 'agent' | 'player'
-  }): Promise<{ intent_id: string }> {
-    return this.request('invoke.respond_to_prompt', payload)
+    memoryId?: string
+  }): Promise<{ experienceId: string; memoryId: string; experienceCount: number }> {
+    return this.request('perceive.respond_to_prompt', payload)
+  }
+
+  async createMemory(payload: {
+    name: string
+  }): Promise<{ memory_id: string; name: string }> {
+    return this.request('perceive.create_memory', payload)
+  }
+
+  async archiveMemoryToDiary(payload: {
+    memoryId: string
+  }): Promise<Record<string, unknown>> {
+    return this.request('perceive.archive_memory', payload)
   }
 
   async characterCreation(payload: {
@@ -102,34 +115,34 @@ export class VampireHttpClient {
 
   async archiveMemory(payload: {
     memoryId: string
-  }): Promise<{ memoryId: string; archived: boolean }> {
-    return this.request('invoke.archive_memory', payload)
+  }): Promise<Record<string, unknown>> {
+    return this.request('perceive.archive_memory', payload)
   }
 
   async deleteMemory(payload: {
     memoryId: string
-  }): Promise<{ memoryId: string; deleted: boolean }> {
-    return this.request('invoke.delete_memory', payload)
+  }): Promise<Record<string, unknown>> {
+    return this.request('perceive.delete_memory', payload)
   }
 
   async renameMemory(payload: {
     memoryId: string
     name: string
-  }): Promise<{ memoryId: string; name: string }> {
-    return this.request('invoke.rename_memory', payload)
+  }): Promise<Record<string, unknown>> {
+    return this.request('perceive.rename_memory', payload)
   }
 
   async updateExperience(payload: {
     experienceId: string
     content: string
-  }): Promise<{ experienceId: string; content: string }> {
-    return this.request('invoke.update_experience', payload)
+  }): Promise<Record<string, unknown>> {
+    return this.request('perceive.update_experience', payload)
   }
 
   async deleteExperience(payload: {
     experienceId: string
-  }): Promise<{ experienceId: string; deleted: boolean }> {
-    return this.request('invoke.delete_experience', payload)
+  }): Promise<Record<string, unknown>> {
+    return this.request('perceive.delete_experience', payload)
   }
 
   async updateStateFields(payload: {

@@ -26,13 +26,13 @@ import { ref } from 'vue'
 import AppShell from '../components/layout/AppShell.vue'
 import MemoryBrowser from '../components/memory/MemoryBrowser.vue'
 
-const filters = [
+const filters: Array<{ value: 'all' | 'active' | 'archived'; label: string }> = [
   { value: 'all', label: '全部' },
   { value: 'active', label: '活跃' },
   { value: 'archived', label: '已归档' }
 ]
 
-const activeFilter = ref('all')
+const activeFilter = ref<'all' | 'active' | 'archived'>('all')
 </script>
 
 <style scoped>

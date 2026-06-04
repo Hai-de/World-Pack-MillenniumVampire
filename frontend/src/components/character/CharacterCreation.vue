@@ -261,7 +261,7 @@ const steps: CreationStep[] = [
   },
   {
     title: '成为吸血鬼前的经历',
-    prompt: '叙述主角在成为吸血鬼之前的人生。是什么样的人？从事什么职业？',
+    prompt: '在成为吸血鬼之前，你是什么样的人？从事什么职业？',
     inputType: 'textarea',
     field: 'preVampireExperience',
     placeholder: '例：在十五世纪的佛罗伦萨，我是一名医生...'
@@ -286,7 +286,7 @@ const steps: CreationStep[] = [
     descLabel: '描述',
     namePlaceholder: '技艺名称',
     descPlaceholder: '简短描述这个技艺',
-    example: '炼金术与草药知识 — 掌握早期化学和药理学，能够调配治疗药剂和有毒的混合物\n古典拉丁语与希腊语 — 流利阅读古代文献，能够解读失传的咒语和炼金术手稿\n长剑格斗 — 在成为医生之前曾在佣兵团服役，精通文艺复兴时期的剑术'
+    example: '炼金术与草药知识 — 我掌握早期化学和药理学，能够调配治疗药剂和有毒的混合物\n古典拉丁语与希腊语 — 我流利阅读古代文献，能够解读失传的咒语和炼金术手稿\n长剑格斗 — 我在成为医生之前曾在佣兵团服役，精通文艺复兴时期的剑术'
   },
   {
     title: '创建三个资源',
@@ -297,15 +297,15 @@ const steps: CreationStep[] = [
     descLabel: '描述',
     namePlaceholder: '资源名称',
     descPlaceholder: '简短描述这个资源',
-    example: '一本记载禁术的古老手稿 — 包含了从活人身上汲取生命力的禁忌仪式\n家族遗留的佛罗伦萨郊外庄园 — 庇护所和藏身之处，地窖中藏有秘密实验室\n一名世代侍奉格雷家族的忠诚仆人 — 马丁，知道主人的真实身份，从不对外透露'
+    example: '一本记载禁术的古老手稿 — 包含了从活人身上汲取生命力的禁忌仪式，是我最珍视的收藏\n家族遗留的佛罗伦萨郊外庄园 — 我的庇护所和藏身之处，地窖中藏有秘密实验室\n一名世代侍奉我家族的忠诚仆人 — 马丁，知道我的真实身份，从不对外透露'
   },
   {
     title: '创建三段经历',
-    prompt: '录入主角在变成吸血鬼之前的三段人生经历。',
+    prompt: '录入你在变成吸血鬼之前的三段人生经历。',
     inputType: 'triple-textareas',
     field: 'experiences',
     placeholder: '描述这段经历...',
-    example: '在佛罗伦萨瘟疫中日夜救治病人，目睹半座城的人口消失\n在威尼斯港口的酒馆里，第一次听说"食人者"的传说\n某年冬日，一位不速之客带着奇怪的礼物敲开了我的门'
+    example: '1348年，我在佛罗伦萨瘟疫中日夜救治病人，目睹半座城的人口消失\n1351年，我在威尼斯港口的酒馆里，第一次听说"食人者"的传说\n1352年深冬，一位不速之客带着奇怪的礼物敲开了我的门'
   },
   {
     title: '创建一个不朽者角色',
@@ -324,11 +324,11 @@ const steps: CreationStep[] = [
     descField: 'markDescription',
     namePlaceholder: '印记名称',
     descPlaceholder: '描述这个印记',
-    example: '永恒的饥饿 — 无论饮下多少鲜血，喉咙深处始终燃烧着无法被扑灭的干渴'
+    example: '永恒的饥饿 — 无论我饮下多少鲜血，喉咙深处始终燃烧着无法被扑灭的干渴'
   },
   {
     title: '变为吸血鬼的经历',
-    prompt: '描述主角是如何变成吸血鬼的。',
+    prompt: '描述你是如何变成吸血鬼的。',
     inputType: 'textarea',
     field: 'turningExperience',
     placeholder: '例：在一个暴风雨的夜晚，我被一个古老的吸血鬼袭击...'
@@ -340,12 +340,27 @@ const totalSteps = steps.length
 
 // ─── 表单数据 ───
 
-interface MortalCharacter {
+interface NameDescriptionPair {
   name: string
   description: string
 }
 
-const formData = ref<Record<string, unknown>>({
+interface FormData {
+  mortalName: string
+  appearance: string[]
+  preVampireExperience: string
+  mortalCharacters: NameDescriptionPair[]
+  skills: NameDescriptionPair[]
+  resources: NameDescriptionPair[]
+  experiences: string[]
+  immortalName: string
+  immortalDescription: string
+  markName: string
+  markDescription: string
+  turningExperience: string
+}
+
+const formData = ref<Record<string, any>>({
   mortalName: '',
   appearance: [''],
   preVampireExperience: '',
@@ -353,7 +368,7 @@ const formData = ref<Record<string, unknown>>({
     { name: '', description: '' },
     { name: '', description: '' },
     { name: '', description: '' }
-  ] as MortalCharacter[],
+  ],
   skills: [
     { name: '', description: '' },
     { name: '', description: '' },
@@ -379,7 +394,7 @@ const draftVersion = '0.2.0'
 // ─── 外观列表操作 ───
 
 function addAppearanceItem() {
-  const appearance = formData.value.appearance as string[]
+  const appearance: string[] = formData.value.appearance
   appearance.push('')
   nextTick(() => {
     const rows = document.querySelectorAll('.vampire-character-creation__appearance-row')
@@ -389,7 +404,7 @@ function addAppearanceItem() {
 }
 
 function removeAppearanceItem(idx: number) {
-  const appearance = formData.value.appearance as string[]
+  const appearance: string[] = formData.value.appearance
   if (appearance.length <= 1) return
   appearance.splice(idx, 1)
 }
@@ -562,34 +577,34 @@ function fillSeedData() {
       '左颈侧有一道早已愈合的咬痕，皮肤下隐约可见暗紫色的血管纹路'
     ],
     preVampireExperience:
-      '埃德蒙·格雷生于十五世纪的佛罗伦萨，是一位备受尊敬的医生和炼金术士。他在瘟疫横行的年头日夜奔走于病人的床榻之间，试图用草药和早期化学知识对抗黑死病。然而，当他最爱的妻子也染病倒下时，他发现自己毕生所学毫无用处。在绝望中，他开始翻找禁书，寻找传说中能战胜死亡的方法。',
+      '我生于十五世纪的佛罗伦萨，是一位备受尊敬的医生和炼金术士。在瘟疫横行的年头，我日夜奔走于病人的床榻之间，试图用草药和早期化学知识对抗黑死病。然而，当我最爱的妻子也染病倒下时，我发现自己毕生所学毫无用处。在绝望中，我开始翻找禁书，寻找传说中能战胜死亡的方法。',
     mortalCharacters: [
-      { name: '伊莎贝拉·格雷', description: '埃德蒙的妻子，温柔而坚韧，死于瘟疫。她的死是埃德蒙走向黑暗的起点' },
-      { name: '马可·韦斯普奇', description: '童年挚友，后来成为城邦议员。在埃德蒙"死去"后再未提起他的名字' },
-      { name: '老安东尼奥', description: '教会埃德蒙医术的导师，一位沉默寡言但洞察一切的老人' }
+      { name: '伊莎贝拉·格雷', description: '我的妻子，温柔而坚韧，死于瘟疫。她的死是我走向黑暗的起点' },
+      { name: '马可·韦斯普奇', description: '我童年的挚友，后来成为城邦议员。在我"死去"后再未提起我的名字' },
+      { name: '老安东尼奥', description: '教会我医术的导师，一位沉默寡言但洞察一切的老人' }
     ],
     skills: [
-      { name: '炼金术与草药知识', description: '掌握早期化学和药理学，能够调配治疗药剂和有毒的混合物' },
-      { name: '古典拉丁语与希腊语', description: '流利阅读古代文献，能够解读失传的咒语和炼金术手稿' },
-      { name: '长剑格斗', description: '在成为医生之前曾在佣兵团服役，精通文艺复兴时期的剑术' }
+      { name: '炼金术与草药知识', description: '我掌握早期化学和药理学，能够调配治疗药剂和有毒的混合物' },
+      { name: '古典拉丁语与希腊语', description: '我能流利阅读古代文献，解读失传的咒语和炼金术手稿' },
+      { name: '长剑格斗', description: '我在成为医生之前曾在佣兵团服役，精通文艺复兴时期的剑术' }
     ],
     resources: [
-      { name: '一本记载禁术的古老手稿', description: '包含了从活人身上汲取生命力的禁忌仪式' },
-      { name: '家族遗留的佛罗伦萨郊外庄园', description: '庇护所和藏身之处，地窖中藏有秘密实验室' },
-      { name: '一名世代侍奉格雷家族的忠诚仆人', description: '马丁，知道主人的真实身份，从不对外透露' }
+      { name: '一本记载禁术的古老手稿', description: '包含了从活人身上汲取生命力的禁忌仪式，是我最珍视的收藏' },
+      { name: '家族遗留的佛罗伦萨郊外庄园', description: '我的庇护所和藏身之处，地窖中藏有秘密实验室' },
+      { name: '一名世代侍奉我家族的忠诚仆人', description: '马丁，知道我的真实身份，从不对外透露' }
     ],
     experiences: [
-      '1348年，佛罗伦萨爆发黑死病。埃德蒙日夜救治病人，目睹半座城市的人口在三个月内消失。他在日记中写道："上帝已抛弃了这座城。"',
-      '1351年，在威尼斯港口的酒馆里，一位水手醉醺醺地讲述了一个关于"食人者"的传说——据说在东方的深山里住着不死的生物，以人血为生。埃德蒙记下了每一个细节。',
-      '1352年深冬的午夜，一位自称来自瓦拉几亚的陌生人敲开了埃德蒙的门。他带来了一个提议：用灵魂换取超越死亡的力量。'
+      '1348年，佛罗伦萨爆发黑死病。我日夜救治病人，目睹半座城市的人口在三个月内消失。我在日记中写道："上帝已抛弃了这座城。"',
+      '1351年，在威尼斯港口的酒馆里，一位水手醉醺醺地讲述了一个关于"食人者"的传说——据说在东方的深山里住着不死的生物，以人血为生。我记下了每一个细节。',
+      '1352年深冬的午夜，一位自称来自瓦拉几亚的陌生人敲开了我的门。他带来了一个提议：用灵魂换取超越死亡的力量。'
     ],
     immortalName: '弗拉德·德拉库尔',
     immortalDescription:
-      '一位来自东欧的古老吸血鬼，外表约四十岁，举止优雅但眼神中藏着千年的倦怠。他将埃德蒙转化为吸血鬼，成为了埃德蒙的导师——也是一个永远无法摆脱的阴影。',
+      '一位来自东欧的古老吸血鬼，外表约四十岁，举止优雅但眼神中藏着千年的倦怠。他将我转化为吸血鬼，成为了我的导师——也是一个永远无法摆脱的阴影。',
     markName: '永恒的饥饿',
-    markDescription: '无论饮下多少鲜血，喉咙深处始终燃烧着无法被扑灭的干渴。这种饥饿永远不会杀死他，但永远不会让他安宁。',
+    markDescription: '无论我饮下多少鲜血，喉咙深处始终燃烧着无法被扑灭的干渴。这种饥饿永远不会杀死我，但永远不会让我安宁。',
     turningExperience:
-      '1353年，一个暴风雨肆虐的夜晚，弗拉德·德拉库尔如约而至。在埃德蒙的地下实验室里，弗拉德割开自己的手腕，让埃德蒙饮下那冰冷而灼热的血液。随后他将埃德蒙勒死，任其在死亡的幻象中挣扎三日。当埃德蒙在第四天午夜从自己的棺材中爬出时，他已经不再属于活人的世界。'
+      '1353年，一个暴风雨肆虐的夜晚，弗拉德·德拉库尔如约而至。在我的地下实验室里，他割开自己的手腕，让我饮下那冰冷而灼热的血液。随后他将我勒死，任我在死亡的幻象中挣扎三日。当我在第四天午夜从自己的棺材中爬出时，我已经不再属于活人的世界。'
   }
 
   // 清除草稿以便种子数据覆盖旧的 localStorage 缓存

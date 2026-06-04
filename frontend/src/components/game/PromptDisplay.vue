@@ -10,29 +10,27 @@
       :retry="retry"
     />
 
-    <!-- 空态 -->
-    <div v-else-if="status === 'empty'" class="vampire-prompt-display__empty">
-      <p class="vampire-prompt-display__empty-text">当前位置无提示</p>
-      <p class="vampire-prompt-display__empty-hint">投掷骰子以滑动到新的提示位置</p>
+    <!-- 未投骰态 -->
+    <div v-else-if="!lastConsumed" class="vampire-prompt-display__empty">
+      <p class="vampire-prompt-display__empty-text">投掷骰子以揭示你的命运</p>
+      <p class="vampire-prompt-display__empty-hint">骰子将决定你遇见哪条提示</p>
     </div>
 
-    <!-- 正常态 -->
-    <div v-else-if="prompt" class="vampire-prompt-display__content">
+    <!-- 已投骰态：显示被消费的提示（玩家要回应的那个） -->
+    <div v-else class="vampire-prompt-display__content">
       <div class="vampire-prompt-display__header">
-        <span class="vampire-prompt-display__position">
-          位置 #{{ prompt.position }}
-        </span>
+        <span class="vampire-prompt-display__label">命运揭示</span>
       </div>
 
       <div class="vampire-prompt-display__body vampire-handwritten">
-        {{ prompt.content }}
+        {{ lastConsumed.content }}
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue'
+import { computed } from 'vue'
 import { useGameStore } from '../../stores/gameStore'
 import { useVampireAsync } from '../../composables/useVampireAsync'
 import { useShellAuth } from '../../composables/useShellAuth'
@@ -42,25 +40,18 @@ import VampireErrorBanner from '../shared/VampireErrorBanner.vue'
 const gameStore = useGameStore()
 const { httpClient } = useShellAuth()
 
-const { data: prompt, status, error, retry } = useVampireAsync(
+// 维持 useVampireAsync 存活（用于 error/retry 状态显示）
+const { status, error, retry } = useVampireAsync(
   async () => {
-    const result = await httpClient.getCurrentPrompt()
-    if (!result || !result.id) {
-      return null
-    }
-    return {
-      id: result.id,
-      content: result.content,
-      position: result.position
-    }
+    // 初始化时拉一次 current_prompt 以确认服务可用
+    await httpClient.getCurrentPrompt()
+    return true
   },
   { isEmpty: (d) => !d }
 )
 
-// 每次投骰后重新拉取提示
-watch(() => gameStore.diceRollCount, () => {
-  retry()
-})
+// 被消费的提示来自 DiceRoller 投骰后写入 gameStore
+const lastConsumed = computed(() => gameStore.lastConsumedPrompt)
 </script>
 
 <style scoped>
@@ -98,33 +89,10 @@ watch(() => gameStore.diceRollCount, () => {
   margin-bottom: 16px;
 }
 
-.vampire-prompt-display__position {
+.vampire-prompt-display__label {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--vampire-text-muted);
-}
-
-.vampire-prompt-display__status {
-  font-size: 0.6875rem;
-  padding: 2px 8px;
-  border-radius: 999px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.vampire-prompt-display__status--new {
-  background-color: var(--vampire-gold-dim);
-  color: var(--vampire-gold);
-}
-
-.vampire-prompt-display__status--read {
-  background-color: var(--vampire-ink-dim);
-  color: var(--vampire-text-secondary);
-}
-
-.vampire-prompt-display__status--processed {
-  background-color: var(--vampire-parchment-dim);
   color: var(--vampire-text-muted);
 }
 
@@ -133,29 +101,5 @@ watch(() => gameStore.diceRollCount, () => {
   line-height: 1.8;
   color: var(--vampire-parchment);
   margin-bottom: 16px;
-}
-
-.vampire-prompt-display__footer {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.vampire-prompt-display__respond-btn {
-  padding: 8px 20px;
-  font-family: var(--vampire-font-body);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--vampire-parchment);
-  background-color: var(--vampire-blood);
-  border: none;
-  border-radius: var(--vampire-radius-sm);
-  cursor: pointer;
-  transition: all var(--vampire-transition-fast);
-}
-
-.vampire-prompt-display__respond-btn:hover {
-  background-color: #a00000;
 }
 </style>

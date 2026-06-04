@@ -7,6 +7,18 @@ export interface DiceResult {
   total: number
 }
 
+export interface PendingSubmission {
+  promptId: string
+  promptContent: string
+  responseContent: string
+  mode: 'player' | 'agent'
+}
+
+export interface ConsumedPrompt {
+  chronicleId: string
+  content: string
+}
+
 export interface GameStoreState {
   currentEra: string
   diceResult: DiceResult | null
@@ -25,6 +37,8 @@ export const useGameStore = defineStore('game', () => {
   const currentTick = ref<number>(0)
   const lastPromptId = ref<string | null>(null)
   const diceRollCount = ref<number>(0)
+  const pendingSubmission = ref<PendingSubmission | null>(null)
+  const lastConsumedPrompt = ref<ConsumedPrompt | null>(null)
 
   // ─── 计算属性 ───
   const isPlaying = computed(() => gamePhase.value === 'playing')
@@ -64,6 +78,20 @@ export const useGameStore = defineStore('game', () => {
     currentTick.value = 0
     lastPromptId.value = null
     diceRollCount.value = 0
+    pendingSubmission.value = null
+    lastConsumedPrompt.value = null
+  }
+
+  function setPendingSubmission(submission: PendingSubmission | null) {
+    pendingSubmission.value = submission
+  }
+
+  function setLastConsumedPrompt(prompt: ConsumedPrompt | null) {
+    lastConsumedPrompt.value = prompt
+  }
+
+  function clearPendingSubmission() {
+    pendingSubmission.value = null
   }
 
   return {
@@ -75,6 +103,8 @@ export const useGameStore = defineStore('game', () => {
     currentTick,
     lastPromptId,
     diceRollCount,
+    pendingSubmission,
+    lastConsumedPrompt,
     // 计算属性
     isPlaying,
     isEnded,
@@ -86,6 +116,9 @@ export const useGameStore = defineStore('game', () => {
     setVampireMode,
     advanceTick,
     resetGame,
-    incrementDiceRollCount
+    incrementDiceRollCount,
+    setPendingSubmission,
+    setLastConsumedPrompt,
+    clearPendingSubmission
   }
 })

@@ -10,7 +10,11 @@
 
         <!-- 中间：回应编辑器（常驻） -->
         <div class="vampire-home-page__response-section">
-          <VampireResponse @submitted="handleResponseSubmitted" />
+          <VampireResponse
+            ref="responseRef"
+            @submitted="handleResponseSubmitted"
+            @submit-requested="handleSubmitRequested"
+          />
         </div>
 
         <!-- 底部：骰子 -->
@@ -19,14 +23,161 @@
         </div>
       </div>
     </AppShell>
+
+    <!-- 回忆选择器模态框 -->
+    <MemoryPickerModal
+      :visible="showPicker"
+      :prompt-preview="gameStore.pendingSubmission?.promptContent ?? ''"
+      :response-preview="gameStore.pendingSubmission?.responseContent ?? ''"
+      @select-memory="handleSelectMemory"
+      @create-memory="handleCreateMemory"
+      @archive-then-select="handleArchiveThenSelect"
+      @forget-then-select="handleForgetThenSelect"
+      @close="handlePickerClose"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import AppShell from '../components/layout/AppShell.vue'
 import DiceRoller from '../components/game/DiceRoller.vue'
 import PromptDisplay from '../components/game/PromptDisplay.vue'
 import VampireResponse from '../components/game/VampireResponse.vue'
+import MemoryPickerModal from '../components/game/MemoryPickerModal.vue'
+import { useGameStore, type PendingSubmission } from '../stores/gameStore'
+import { useCharacterStore } from '../stores/characterStore'
+import { useShellAuth } from '../composables/useShellAuth'
+
+const gameStore = useGameStore()
+const characterStore = useCharacterStore()
+const { httpClient } = useShellAuth()
+
+const responseRef = ref<InstanceType<typeof VampireResponse> | null>(null)
+const showPicker = ref(false)
+
+// ─── 提交回应 → 打开选择器 ───
+function handleSubmitRequested(submission: PendingSubmission) {
+  gameStore.setPendingSubmission(submission)
+  showPicker.value = true
+}
+
+// ─── 正常选择：存入指定回忆 ───
+async function handleSelectMemory(memoryId: string) {
+  showPicker.value = false
+  try {
+    const result = await responseRef.value?.confirmSubmit(memoryId)
+    if (result && gameStore.pendingSubmission) {
+      characterStore.addExperience(memoryId, {
+        id: result.experienceId,
+        content: gameStore.pendingSubmission.responseContent,
+        createdAt: new Date().toISOString()
+      })
+    }
+  } catch (err) {
+    console.error('Submit to memory failed:', err)
+  } finally {
+    gameStore.clearPendingSubmission()
+  }
+}
+
+// ─── 新建回忆并存入 ───
+async function handleCreateMemory(name: string) {
+  showPicker.value = false
+  try {
+    const createResult = await httpClient.createMemory({ name })
+    characterStore.addMemory({
+      id: createResult.memory_id,
+      name: createResult.name,
+      experiences: [],
+      archivedToDiary: false
+    })
+    const submitResult = await responseRef.value?.confirmSubmit(createResult.memory_id)
+    if (submitResult && gameStore.pendingSubmission) {
+      characterStore.addExperience(createResult.memory_id, {
+        id: submitResult.experienceId,
+        content: gameStore.pendingSubmission.responseContent,
+        createdAt: new Date().toISOString()
+      })
+    }
+  } catch (err) {
+    console.error('Create memory and submit failed:', err)
+  } finally {
+    gameStore.clearPendingSubmission()
+  }
+}
+
+// ─── 归档到日记 → 新建回忆 → 存入 ───
+async function handleArchiveThenSelect(memoryId: string) {
+  showPicker.value = false
+  try {
+    // 1. 归档到日记
+    await httpClient.archiveMemoryToDiary({ memoryId })
+    characterStore.archiveMemory(memoryId)
+
+    // 2. 创建新回忆
+    const createResult = await httpClient.createMemory({ name: '新的回忆' })
+    characterStore.addMemory({
+      id: createResult.memory_id,
+      name: createResult.name,
+      experiences: [],
+      archivedToDiary: false
+    })
+
+    // 3. 提交到新回忆
+    const submitResult = await responseRef.value?.confirmSubmit(createResult.memory_id)
+    if (submitResult && gameStore.pendingSubmission) {
+      characterStore.addExperience(createResult.memory_id, {
+        id: submitResult.experienceId,
+        content: gameStore.pendingSubmission.responseContent,
+        createdAt: new Date().toISOString()
+      })
+    }
+  } catch (err) {
+    console.error('Archive then submit failed:', err)
+  } finally {
+    gameStore.clearPendingSubmission()
+  }
+}
+
+// ─── 遗忘并新建 → 存入 ───
+async function handleForgetThenSelect(memoryId: string) {
+  showPicker.value = false
+  try {
+    // 1. 删除回忆
+    await httpClient.deleteMemory({ memoryId })
+    characterStore.removeMemory(memoryId)
+
+    // 2. 创建新回忆
+    const createResult = await httpClient.createMemory({ name: '新的回忆' })
+    characterStore.addMemory({
+      id: createResult.memory_id,
+      name: createResult.name,
+      experiences: [],
+      archivedToDiary: false
+    })
+
+    // 3. 提交到新回忆
+    const submitResult = await responseRef.value?.confirmSubmit(createResult.memory_id)
+    if (submitResult && gameStore.pendingSubmission) {
+      characterStore.addExperience(createResult.memory_id, {
+        id: submitResult.experienceId,
+        content: gameStore.pendingSubmission.responseContent,
+        createdAt: new Date().toISOString()
+      })
+    }
+  } catch (err) {
+    console.error('Forget then submit failed:', err)
+  } finally {
+    gameStore.clearPendingSubmission()
+  }
+}
+
+// ─── 关闭选择器 ───
+function handlePickerClose() {
+  showPicker.value = false
+  gameStore.clearPendingSubmission()
+}
 
 function handleResponseSubmitted(response: string) {
   console.log('Response submitted:', response.substring(0, 100) + '...')

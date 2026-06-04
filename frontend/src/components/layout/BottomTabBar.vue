@@ -1,7 +1,7 @@
 <template>
   <nav class="vampire-bottom-tab-bar">
     <router-link
-      v-for="tab in mainTabs"
+      v-for="tab in leftTabs"
       :key="tab.route"
       :to="tab.route"
       class="vampire-bottom-tab-bar__item"
@@ -20,15 +20,29 @@
       <span class="vampire-bottom-tab-bar__icon">⋯</span>
       <span class="vampire-bottom-tab-bar__label">更多</span>
     </button>
+
+    <router-link
+      v-for="tab in rightTabs"
+      :key="tab.route"
+      :to="tab.route"
+      class="vampire-bottom-tab-bar__item"
+      :class="{ 'vampire-bottom-tab-bar__item--active': $route.path === tab.route }"
+    >
+      <span class="vampire-bottom-tab-bar__icon">{{ tab.icon }}</span>
+      <span class="vampire-bottom-tab-bar__label">{{ tab.label }}</span>
+    </router-link>
   </nav>
 </template>
 
 <script setup lang="ts">
-const mainTabs = [
+const leftTabs = [
   { route: '/', icon: '🎲', label: '骰子' },
   { route: '/diary', icon: '📖', label: '日记' },
+]
+
+const rightTabs = [
   { route: '/memories', icon: '🧠', label: '回忆' },
-  { route: '/settings', icon: '⚙️', label: '设置' }
+  { route: '/settings', icon: '⚙️', label: '设置' },
 ]
 
 defineEmits<{

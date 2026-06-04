@@ -130,8 +130,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useCharacterStore } from '../../stores/characterStore'
+import { useShellAuth } from '../../composables/useShellAuth'
 
 const characterStore = useCharacterStore()
+const { httpClient } = useShellAuth()
 
 const diaryState = computed(() => characterStore.diaryState)
 const archivedMemories = computed(() => characterStore.archivedMemories)
@@ -162,8 +164,13 @@ function toggleEntry(memoryId: string) {
   expandedId.value = expandedId.value === memoryId ? null : memoryId
 }
 
-function handleCreate() {
+async function handleCreate() {
   characterStore.createDiary()
+  try {
+    await httpClient.updateStateFields({ fields: { diary_id: 'artifact_diary' } })
+  } catch (e) {
+    console.warn('Failed to sync diary creation to backend:', e)
+  }
 }
 </script>
 

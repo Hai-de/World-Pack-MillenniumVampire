@@ -130,6 +130,14 @@ async function handleRoll() {
         total: result.total
       })
 
+      // 保存被消费的提示（玩家需要回应的那个，不是替换提示）
+      if (result.prompt) {
+        gameStore.setLastConsumedPrompt({
+          chronicleId: result.prompt.id,
+          content: result.prompt.content
+        })
+      }
+
       // 通知提示组件刷新
       gameStore.incrementDiceRollCount()
 

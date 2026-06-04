@@ -30,6 +30,20 @@ pack_collections:
       - { key: content, type: string, required: true }
       - { key: consumed, type: boolean }
 
+  - key: chronicle_entries
+    kind: table
+    primary_key: id
+    fields:
+      - { key: id, type: string, required: true }
+      - { key: position, type: number }
+      - { key: content, type: string }
+      - { key: dice_result, type: string }
+      - { key: consumed_at, type: string }
+      - { key: response_content, type: string }
+      - { key: experience_id, type: string }
+      - { key: memory_id, type: string }
+      - { key: diary_entry_id, type: string }
+
   - key: vampire_characters
     kind: table
     primary_key: id

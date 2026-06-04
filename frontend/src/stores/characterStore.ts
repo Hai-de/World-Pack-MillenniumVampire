@@ -161,6 +161,7 @@ export const useCharacterStore = defineStore('character', () => {
       kind: 'diary',
     }
     addResource(diaryResource)
+    diaryState.value.lost = false
   }
 
   function loseResource(resourceId: string) {

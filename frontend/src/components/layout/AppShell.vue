@@ -75,13 +75,14 @@ provide('vampire-layout-is-desktop', isWideDesktop)
 
 // 侧边栏/图标栏项目
 const sidebarItems = [
-  { id: 'vampire', icon: '🧛', label: '吸血鬼状态', route: '/' },
+  { id: 'vampire', icon: '🎲', label: '游戏', route: '/' },
   { id: 'skills', icon: '⚔️', label: '技艺', route: '/skills' },
   { id: 'resources', icon: '📦', label: '资源', route: '/resources' },
   { id: 'diary', icon: '📖', label: '日记', route: '/diary' },
   { id: 'characters', icon: '👥', label: '角色', route: '/characters' },
   { id: 'marks', icon: '👁️', label: '印记', route: '/marks' },
   { id: 'memories', icon: '🧠', label: '回忆', route: '/memories' },
+  { id: 'chronicle', icon: '📜', label: '编年史', route: '/chronicle' },
   { id: 'settings', icon: '⚙️', label: '设置', route: '/settings' }
 ]
 

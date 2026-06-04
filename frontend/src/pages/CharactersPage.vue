@@ -191,12 +191,12 @@ const editingValue = ref('')
 // 函数 ref：只有当前编辑中的元素会被赋值
 let activeEl: HTMLInputElement | HTMLTextAreaElement | null = null
 
-function nameRefFn(el: HTMLInputElement | null) {
-  if (el) activeEl = el
+function nameRefFn(el: Element | null) {
+  if (el) activeEl = el as HTMLInputElement
 }
 
-function descRefFn(el: HTMLTextAreaElement | null) {
-  if (el) activeEl = el
+function descRefFn(el: Element | null) {
+  if (el) activeEl = el as HTMLTextAreaElement
 }
 
 function startEdit(character: Character, field: 'name' | 'description') {
